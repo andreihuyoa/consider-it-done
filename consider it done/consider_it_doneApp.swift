@@ -5,14 +5,14 @@
 //  Created by Andrei Huyo-a on 8/18/26.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 @main
 struct consider_it_doneApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
+            SavedItem.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -28,5 +28,13 @@ struct consider_it_doneApp: App {
             ContentView()
         }
         .modelContainer(sharedModelContainer)
+
+#if os(macOS)
+        MenuBarExtra("The Fig", systemImage: "tray.full") {
+            MenuBarSaveView()
+                .modelContainer(sharedModelContainer)
+        }
+        .menuBarExtraStyle(.window)
+#endif
     }
 }
