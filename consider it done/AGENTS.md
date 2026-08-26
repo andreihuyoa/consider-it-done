@@ -102,6 +102,14 @@ colors/spacing to use, HIG governs *how* controls behave per platform.
   (e.g. ⌘F for search).
 
 ## Definition of done
+- Run a build (`xcodebuild` for the relevant scheme/target, or the
+  equivalent build check available in this environment) after every change,
+  before considering the task complete. If the build fails, fix it as part
+  of the same task — do not hand back broken code and describe the fix
+  needed instead of applying it.
+- If a build cannot be run in this environment (no Xcode/simulator
+  available), say so explicitly and list exactly what should be verified
+  manually, rather than silently skipping verification.
 - Builds with no warnings introduced.
 - New Swift files respect existing folder structure (Models/, Views/,
   Services/, Widgets/, ShareExtension/, MenuBarExtra/).
