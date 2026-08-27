@@ -87,7 +87,8 @@ struct ContentView: View {
                     save: selectedSave,
                     namespace: saveNamespace,
                     onClose: { closeDetail() },
-                    onArchive: { archive(selectedSave) }
+                    onArchive: { archive(selectedSave) },
+                    onDelete: { remove(selectedSave) }
                 )
                 .transition(.opacity)
                 .zIndex(1)
@@ -210,6 +211,7 @@ struct ContentView: View {
     }
 
     private func openDetail(_ save: SavedItem) {
+        save.viewedAt = Date()
         withAnimation(reduceMotion ? nil : .spring(response: 0.34, dampingFraction: 0.88)) {
             selectedSave = save
         }
@@ -222,8 +224,13 @@ struct ContentView: View {
     }
 
     private func archive(_ save: SavedItem) {
-        save.status = .archived
+        save.archivedAt = Date()
         closeDetail()
+    }
+
+    private func remove(_ save: SavedItem) {
+        closeDetail()
+        modelContext.delete(save)
     }
 
     private func savePendingURL() {
