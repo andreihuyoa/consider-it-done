@@ -12,21 +12,8 @@ enum SaveSource: String, CaseIterable, Codable {
     case instagram
     case youtube
     case reddit
-    case website
-}
-
-enum SaveContentType: String, CaseIterable, Codable {
-    case instagramPost
-    case instagramReel
-    case youtubeVideo
-    case redditPost
-    case webpage
-}
-
-enum SaveStatus: String, CaseIterable, Codable {
-    case inbox
-    case saved
-    case archived
+    case facebook
+    case other
 }
 
 @Model
@@ -34,76 +21,71 @@ final class SavedItem {
     @Attribute(.unique) var id: UUID
     var sourceURL: URL
     var sourceRawValue: String
-    var contentTypeRawValue: String
     var title: String
     var itemDescription: String?
     var thumbnailURL: URL?
-    var creator: String?
-    var createdAt: Date?
+    var thumbnailData: Data?
     var savedAt: Date
-    var collectionIDs: [UUID]
-    var tags: [String]
-    var statusRawValue: String
+    var archivedAt: Date?
+    var reminderDate: Date?
+    var viewedAt: Date?
+    var isPinned: Bool
+    @Relationship(deleteRule: .nullify) var collections: [Collection] = []
+    @Relationship(deleteRule: .nullify) var tags: [Tag] = []
 
     var source: SaveSource {
-        get { SaveSource(rawValue: sourceRawValue) ?? .website }
+        get { SaveSource(rawValue: sourceRawValue) ?? .other }
         set { sourceRawValue = newValue.rawValue }
-    }
-
-    var contentType: SaveContentType {
-        get { SaveContentType(rawValue: contentTypeRawValue) ?? .webpage }
-        set { contentTypeRawValue = newValue.rawValue }
-    }
-
-    var status: SaveStatus {
-        get { SaveStatus(rawValue: statusRawValue) ?? .inbox }
-        set { statusRawValue = newValue.rawValue }
     }
 
     init(
         id: UUID = UUID(),
         sourceURL: URL,
         source: SaveSource,
-        contentType: SaveContentType,
         title: String,
         description: String? = nil,
         thumbnailURL: URL? = nil,
-        creator: String? = nil,
-        createdAt: Date? = nil,
+        thumbnailData: Data? = nil,
         savedAt: Date = Date(),
-        collectionIDs: [UUID] = [],
-        tags: [String] = [],
-        status: SaveStatus = .inbox
+        archivedAt: Date? = nil,
+        reminderDate: Date? = nil,
+        viewedAt: Date? = nil,
+        isPinned: Bool = false,
+        collections: [Collection] = [],
+        tags: [Tag] = []
     ) {
         self.id = id
         self.sourceURL = sourceURL
         self.sourceRawValue = source.rawValue
-        self.contentTypeRawValue = contentType.rawValue
         self.title = title
         self.itemDescription = description
         self.thumbnailURL = thumbnailURL
-        self.creator = creator
-        self.createdAt = createdAt
+        self.thumbnailData = thumbnailData
         self.savedAt = savedAt
-        self.collectionIDs = collectionIDs
+        self.archivedAt = archivedAt
+        self.reminderDate = reminderDate
+        self.viewedAt = viewedAt
+        self.isPinned = isPinned
+        self.collections = collections
         self.tags = tags
-        self.statusRawValue = status.rawValue
     }
 }
 
 extension SavedItem {
-    static func make(from url: URL) -> SavedItem {
-        let metadata = LinkClassifier.classify(url)
+    static func make(from url: URL, metadata: LinkMetadata) -> SavedItem {
+        let tags = metadata.tags.map { Tag(name: $0) }
 
         return SavedItem(
             sourceURL: url,
             source: metadata.source,
-            contentType: metadata.contentType,
             title: metadata.title,
             description: metadata.description,
-            creator: metadata.creator,
-            tags: metadata.tags,
-            status: .inbox
+            thumbnailURL: metadata.thumbnailURL,
+            thumbnailData: metadata.thumbnailData,
+            viewedAt: nil,
+            isPinned: false,
+            collections: [],
+            tags: tags
         )
     }
 }

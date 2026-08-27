@@ -13,6 +13,8 @@ struct consider_it_doneApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             SavedItem.self,
+            Collection.self,
+            Tag.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
