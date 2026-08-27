@@ -10,21 +10,22 @@ import SwiftUI
 struct CollectionsOverview: View {
     let saves: [SavedItem]
 
-    private var sourceGroups: [(SaveSource, [SavedItem])] {
-        SaveSource.allCases.compactMap { source in
-            let matchingSaves = saves.filter { $0.source == source }
-            return matchingSaves.isEmpty ? nil : (source, matchingSaves)
-        }
+    private var collections: [Collection] {
+        var seen = Set<UUID>()
+        return saves
+            .flatMap(\.collections)
+            .filter { seen.insert($0.id).inserted }
+            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
     }
 
     var body: some View {
-        if sourceGroups.isEmpty {
+        if collections.isEmpty {
             EmptyFigState(selectedArea: .collections)
         } else {
             ScrollView {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 168), spacing: 16)], spacing: 16) {
-                    ForEach(sourceGroups, id: \.0) { source, sourceSaves in
-                        CollectionObjectCard(source: source, saves: sourceSaves)
+                    ForEach(collections) { collection in
+                        CollectionObjectCard(collection: collection, saves: saves.filter { $0.collections.contains(where: { $0.id == collection.id }) })
                     }
                 }
                 .padding(.vertical, 8)
@@ -34,7 +35,7 @@ struct CollectionsOverview: View {
 }
 
 struct CollectionObjectCard: View {
-    let source: SaveSource
+    let collection: Collection
     let saves: [SavedItem]
 
     var body: some View {
@@ -48,10 +49,13 @@ struct CollectionObjectCard: View {
                 .offset(x: 6, y: 6)
 
             VStack(alignment: .leading, spacing: 20) {
-                SaveSourceMark(source: source)
+                if let thumbnailData = collection.coverThumbnailData {
+                    SaveThumbnail(data: thumbnailData)
+                        .frame(height: 72)
+                }
 
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(source.displayName)
+                    Text(collection.name)
                         .font(.title3.weight(.semibold))
                         .foregroundStyle(Color.figTextPrimary)
 

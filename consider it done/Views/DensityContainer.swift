@@ -18,7 +18,7 @@ struct DensityContainer: View {
         case .organization:
             OrganizationGrid(saves: saves, namespace: namespace, onSelect: onSelect)
         case .grid:
-            MasonryLayout(columns: 2, spacing: 12) {
+            MasonryLayout(columns: masonryColumnCount, spacing: 12) {
                 ForEach(saves) { save in
                     SaveGridCard(save: save, namespace: namespace)
                         .onTapGesture { onSelect(save) }
@@ -33,12 +33,23 @@ struct DensityContainer: View {
             }
         }
     }
+
+    private var masonryColumnCount: Int {
+#if os(macOS)
+        3
+#else
+        2
+#endif
+    }
 }
 
 struct OrganizationGrid: View {
     let saves: [SavedItem]
     let namespace: Namespace.ID
     let onSelect: (SavedItem) -> Void
+
+    @State private var sort: OrganizationSort = .importance
+    @State private var groupBySource = false
 
     private var groupedSaves: [(SaveSource, [SavedItem])] {
         SaveSource.allCases.compactMap { source in
@@ -48,11 +59,96 @@ struct OrganizationGrid: View {
     }
 
     var body: some View {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 132), spacing: 12)], spacing: 12) {
-            ForEach(groupedSaves, id: \.0) { source, sourceSaves in
-                SourceStackCard(source: source, saves: sourceSaves, namespace: namespace, onSelect: onSelect)
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 8) {
+                Picker("Sort", selection: $sort) {
+                    ForEach(OrganizationSort.allCases) { option in
+                        Text(option.rawValue).tag(option)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .tint(.figAccent)
+
+                Toggle("Group", isOn: $groupBySource)
+                    .toggleStyle(.button)
+                    .tint(.figAccent)
+            }
+
+            if groupBySource {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 132), spacing: 12)], spacing: 12) {
+                    ForEach(groupedSaves, id: \.0) { source, sourceSaves in
+                        SourceStackCard(source: source, saves: sourceSaves, namespace: namespace, onSelect: onSelect)
+                    }
+                }
+            } else {
+                OrganizationTileLayout(saves: sortedSaves, namespace: namespace, onSelect: onSelect, sort: sort)
             }
         }
+    }
+
+    private var sortedSaves: [SavedItem] {
+        switch sort {
+        case .importance:
+            saves.sorted {
+                if $0.isPinned != $1.isPinned { return $0.isPinned }
+                return $0.savedAt > $1.savedAt
+            }
+        case .recent:
+            saves.sorted { $0.savedAt > $1.savedAt }
+        case .reminder:
+            saves.sorted { ($0.reminderDate ?? .distantFuture) < ($1.reminderDate ?? .distantFuture) }
+        }
+    }
+}
+
+enum OrganizationSort: String, CaseIterable, Identifiable {
+    case importance = "Importance"
+    case recent = "Recent"
+    case reminder = "Reminder"
+    var id: String { rawValue }
+}
+
+struct OrganizationTileLayout: View {
+    let saves: [SavedItem]
+    let namespace: Namespace.ID
+    let onSelect: (SavedItem) -> Void
+    let sort: OrganizationSort
+
+    var body: some View {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 132), spacing: 12)], spacing: 12) {
+            ForEach(Array(saves.enumerated()), id: \.element.id) { index, save in
+                Button { onSelect(save) } label: {
+                    VStack(alignment: .leading, spacing: 8) {
+                        SaveSourceMark(source: save.source)
+                        Text(save.title)
+                            .font(.headline.weight(.semibold))
+                            .foregroundStyle(Color.figTextPrimary)
+                            .lineLimit(tileLineLimit(for: save, index: index))
+                    }
+                    .padding(16)
+                    .frame(maxWidth: .infinity, minHeight: tileHeight(for: save, index: index), alignment: .topLeading)
+                    .background(Color.figSurface)
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                }
+                .buttonStyle(.plain)
+                .matchedGeometryEffect(id: save.id, in: namespace)
+            }
+        }
+    }
+
+    private func tileHeight(for save: SavedItem, index: Int) -> CGFloat {
+        switch sort {
+        case .importance:
+            return save.isPinned ? 184 : 136
+        case .recent:
+            return index == 0 ? 184 : 136
+        case .reminder:
+            return save.reminderDate == nil ? 136 : 184
+        }
+    }
+
+    private func tileLineLimit(for save: SavedItem, index: Int) -> Int {
+        tileHeight(for: save, index: index) > 160 ? 4 : 2
     }
 }
 

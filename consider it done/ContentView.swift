@@ -18,7 +18,6 @@ enum FigArea: String, CaseIterable, Identifiable {
     case theFig = "The Fig"
     case collections = "Collections"
     case save = "Save"
-    case archive = "Archive"
 
     var id: String { rawValue }
 }
@@ -52,11 +51,11 @@ struct ContentView: View {
     private var visibleSaves: [SavedItem] {
         switch selectedArea {
         case .theFig:
-            saves.filter { $0.status == .inbox }
-        case .archive:
-            saves.filter { $0.status == .archived }
-        case .collections, .save:
-            saves.filter { $0.status != .archived }
+            saves.filter { $0.archivedAt == nil }
+        case .collections:
+            saves.filter { $0.archivedAt == nil }
+        case .save:
+            saves
         }
     }
 
@@ -66,7 +65,6 @@ struct ContentView: View {
 
             VStack(alignment: .leading, spacing: 16) {
                 header
-                areaPicker
 
                 Group {
                     switch selectedArea {
@@ -74,11 +72,13 @@ struct ContentView: View {
                         saveComposer
                     case .collections:
                         CollectionsOverview(saves: visibleSaves)
-                    case .theFig, .archive:
+                    case .theFig:
                         browsingSurface
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+
+                areaPicker
             }
             .padding(24)
 
@@ -113,13 +113,11 @@ struct ContentView: View {
     private var headerSubtitle: String {
         switch selectedArea {
         case .theFig:
-            "\(visibleSaves.count) links waiting to become useful."
+            "\(visibleSaves.count) saved links."
         case .collections:
             "Collections are stacks of saved links, not folders."
         case .save:
             "Paste a URL to add it to The Fig."
-        case .archive:
-            "\(visibleSaves.count) links moved out of the inbox."
         }
     }
 

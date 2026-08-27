@@ -31,8 +31,6 @@ struct EmptyFigState: View {
         switch selectedArea {
         case .theFig:
             "No links in The Fig yet."
-        case .archive:
-            "Archive is empty."
         case .collections:
             "No collection stacks yet."
         case .save:
@@ -44,8 +42,6 @@ struct EmptyFigState: View {
         switch selectedArea {
         case .theFig:
             "Use Save to add Instagram, YouTube, Reddit, or website URLs."
-        case .archive:
-            "Archived links will stay out of the inbox without being deleted."
         case .collections:
             "As links build up, this area will make groups feel like physical stacks."
         case .save:
