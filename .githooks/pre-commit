@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# Fast pre-commit gate. Does NOT run full E2E/XCUITest — those are too slow
+# for a commit hook and belong in feature_list.json's per-feature
+# verification steps instead. This hook only checks:
+#   1. The build compiles.
+#   2. If Swift source changed, the bookkeeping files were also touched.
+set -euo pipefail
+
+SCHEME="ConsiderItDone"
+IOS_DEST="platform=iOS Simulator,name=iPhone 16"
+
+STAGED=$(git diff --cached --name-only --diff-filter=ACM)
+
+SWIFT_CHANGED=$(echo "$STAGED" | grep -E '\.swift$' || true)
+if [ -n "$SWIFT_CHANGED" ]; then
+  echo "==> Swift files changed, checking bookkeeping files were updated"
+  BOOKKEEPING_OK=true
+  echo "$STAGED" | grep -qx "claude-progress.md" || BOOKKEEPING_OK=false
+  echo "$STAGED" | grep -qx "feature_list.json" || BOOKKEEPING_OK=false
+
+  if [ "$BOOKKEEPING_OK" = false ]; then
+    echo "ERROR: Swift source changed but claude-progress.md and/or"
+    echo "feature_list.json were not updated in this commit."
+    echo "Update both (session log + feature status/evidence) or commit"
+    echo "with --no-verify if this is intentionally a WIP checkpoint."
+    exit 1
+  fi
+
+  echo "==> Build check"
+  xcodebuild -scheme "$SCHEME" -destination "$IOS_DEST" build \
+    || { echo "ERROR: build failed, commit blocked."; exit 1; }
+fi
+
+echo "==> pre-commit checks passed"
+exit 0

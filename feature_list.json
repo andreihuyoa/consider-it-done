@@ -1,0 +1,74 @@
+{
+  "features": [
+    {
+      "id": "data-model-collection-tag-relations",
+      "priority": 1,
+      "area": "data-model",
+      "title": "Convert Collection and Tag to proper SwiftData @Model relationships",
+      "user_visible_behavior": "Assigning a SavedItem to a Collection or Tag persists as a real relationship (not a raw string/array), so renaming a Collection updates everywhere it's used and deleting a Tag doesn't orphan data silently.",
+      "status": "not_started",
+      "verification": [
+        "xcodebuild -scheme ConsiderItDone -destination 'platform=iOS Simulator,name=iPhone 16' build",
+        "xcodebuild -scheme ConsiderItDone -destination 'platform=iOS Simulator,name=iPhone 16' test -only-testing:ConsiderItDoneTests/CollectionTagModelTests",
+        "Manual: create item, assign to Collection, rename Collection in UI, confirm item still shows correct name after relaunch"
+      ],
+      "evidence": "",
+      "notes": "Blocks data-model-reminder-viewed and thumbnail-rendering if they touch SavedItem's relationships. Do this first."
+    },
+    {
+      "id": "data-model-reminder-viewed",
+      "priority": 2,
+      "area": "data-model",
+      "title": "Add reminderDate and viewedAt fields to SavedItem",
+      "user_visible_behavior": "User can set a reminder date on a saved item from the detail view; item is marked viewed (viewedAt set) the first time its detail view is opened.",
+      "status": "not_started",
+      "verification": [
+        "xcodebuild -scheme ConsiderItDone -destination 'platform=iOS Simulator,name=iPhone 16' build",
+        "xcodebuild -scheme ConsiderItDone -destination 'platform=iOS Simulator,name=iPhone 16' test -only-testing:ConsiderItDoneTests/SavedItemModelTests",
+        "Manual: set reminderDate on an item, relaunch app, confirm value persisted; open detail view, confirm viewedAt is set and unread badge clears"
+      ],
+      "evidence": "",
+      "notes": "Confirm lightweight-migration-safety for existing SwiftData store before shipping; both fields should be optional to avoid migration issues."
+    },
+    {
+      "id": "thumbnail-rendering",
+      "priority": 3,
+      "area": "ui",
+      "title": "Render OG-parsed thumbnail image on grid cards and detail view",
+      "user_visible_behavior": "Saved items with a parsed Open Graph image show that image on the grid card and detail view; items without one show the existing placeholder treatment (no fallback thumbnail generation).",
+      "status": "not_started",
+      "verification": [
+        "xcodebuild -scheme ConsiderItDone -destination 'platform=iOS Simulator,name=iPhone 16' build",
+        "xcodebuild -scheme ConsiderItDone -destination 'platform=iOS Simulator,name=iPhone 16' test -only-testing:ConsiderItDoneTests/OGImageParsingTests",
+        "Manual: save a URL with an OG image, confirm it renders in both zoom levels that show images; save a URL without an OG image, confirm no fallback thumbnail is generated"
+      ],
+      "evidence": "",
+      "notes": "OG parsing only, per AGENTS.md — no oEmbed, no fallback thumbnail mechanism."
+    },
+    {
+      "id": "macos-3col-branch",
+      "priority": 4,
+      "area": "layout",
+      "title": "Add macOS 3-column masonry branch to grid layout",
+      "user_visible_behavior": "On macOS (MenuBarExtra popover), the mid-zoom masonry grid renders 3 columns instead of the iOS 2-column layout.",
+      "status": "not_started",
+      "verification": [
+        "xcodebuild -scheme ConsiderItDone -destination 'platform=macOS' build",
+        "Manual: open MenuBarExtra popover on macOS, pinch/zoom to masonry level, confirm 3 columns render and reflow correctly on window resize"
+      ],
+      "evidence": "",
+      "notes": "Grid is currently hardcoded 2-column with no macOS branch — this is additive, should not touch iOS layout code path."
+    },
+    {
+      "id": "macos-full-window-app",
+      "priority": 5,
+      "area": "platform",
+      "title": "Full macOS WindowGroup app (beyond MenuBarExtra)",
+      "user_visible_behavior": "App has a full resizable window on macOS, not just a MenuBarExtra popover.",
+      "status": "blocked",
+      "verification": [],
+      "evidence": "",
+      "notes": "BLOCKED: requires Carl's explicit confirmation per AGENTS.md macOS scope rule. A WindowGroup was previously built without this confirmation and should not be re-added until confirmed. Do not pick this up automatically."
+    }
+  ]
+}
