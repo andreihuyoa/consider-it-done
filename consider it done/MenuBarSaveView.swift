@@ -53,9 +53,14 @@ struct MenuBarSaveView: View {
             return
         }
 
-        modelContext.insert(SavedItem.make(from: url))
-        pendingURL = ""
-        message = "Saved to The Fig."
+        Task {
+            let metadata = await LinkClassifier.metadata(for: url)
+            await MainActor.run {
+                modelContext.insert(SavedItem.make(from: url, metadata: metadata))
+                pendingURL = ""
+                message = "Saved to The Fig."
+            }
+        }
     }
 }
 #endif

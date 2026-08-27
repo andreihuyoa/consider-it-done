@@ -235,10 +235,15 @@ struct ContentView: View {
             return
         }
 
-        modelContext.insert(SavedItem.make(from: url))
-        pendingURL = ""
-        saveError = nil
-        selectedArea = .theFig
+        Task {
+            let metadata = await LinkClassifier.metadata(for: url)
+            await MainActor.run {
+                modelContext.insert(SavedItem.make(from: url, metadata: metadata))
+                pendingURL = ""
+                saveError = nil
+                selectedArea = .theFig
+            }
+        }
     }
 
     private func pasteFromClipboard() {

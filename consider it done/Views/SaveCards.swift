@@ -6,6 +6,13 @@
 //
 
 import SwiftUI
+import Foundation
+
+#if os(iOS)
+import UIKit
+#elseif os(macOS)
+import AppKit
+#endif
 
 struct SaveGridCard: View {
     let save: SavedItem
@@ -13,12 +20,14 @@ struct SaveGridCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
+            SaveThumbnail(data: save.thumbnailData)
+                .frame(width: 120)
             SaveSourceMark(source: save.source)
 
             Text(save.title)
                 .font(.headline.weight(.semibold))
                 .foregroundStyle(Color.figTextPrimary)
-                .lineLimit(save.source == .website ? 3 : 2)
+                .lineLimit(save.source == .other ? 3 : 2)
 
             if let description = save.itemDescription {
                 Text(description)
@@ -43,6 +52,7 @@ struct SaveListCard: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 16) {
+            SaveThumbnail(data: save.thumbnailData)
             SaveSourceMark(source: save.source)
 
             VStack(alignment: .leading, spacing: 8) {
@@ -91,6 +101,11 @@ struct SourceStackCard: View {
                     .offset(x: 4, y: 4)
 
                 VStack(alignment: .leading, spacing: 16) {
+                    if let thumbnailData = saves.first?.thumbnailData {
+                        SaveThumbnail(data: thumbnailData)
+                            .frame(height: 72)
+                    }
+
                     SaveSourceMark(source: source)
 
                     VStack(alignment: .leading, spacing: 4) {
@@ -123,19 +138,19 @@ struct SaveSourceMark: View {
             .foregroundStyle(Color.figTextPrimary)
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
-            .background(source == .website ? Color.figSurfaceMuted : Color.figSuccessBackground)
+            .background(Color.figSurfaceMuted)
             .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
     }
 }
 
 struct SaveTagRow: View {
-    let tags: [String]
+    let tags: [Tag]
 
     var body: some View {
         if !tags.isEmpty {
             HStack(spacing: 8) {
-                ForEach(tags.prefix(3), id: \.self) { tag in
-                    Text(tag)
+                ForEach(tags.prefix(3)) { tag in
+                    Text(tag.name)
                         .font(.caption)
                         .foregroundStyle(Color.figTextMuted)
                 }
@@ -153,8 +168,10 @@ extension SaveSource {
             "YouTube"
         case .reddit:
             "Reddit"
-        case .website:
-            "Websites"
+        case .facebook:
+            "Facebook"
+        case .other:
+            "Other"
         }
     }
 
@@ -166,8 +183,43 @@ extension SaveSource {
             "YT"
         case .reddit:
             "RD"
-        case .website:
+        case .facebook:
+            "FB"
+        case .other:
             "WEB"
         }
     }
+}
+
+struct SaveThumbnail: View {
+    let data: Data?
+
+    var body: some View {
+        if let image = platformImage {
+            imageView(image)
+                .resizable()
+                .scaledToFill()
+                .frame(maxWidth: .infinity)
+                .aspectRatio(imageAspectRatio, contentMode: .fit)
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        } else {
+            Color.figSurfaceMuted
+                .frame(maxWidth: .infinity)
+                .aspectRatio(1.5, contentMode: .fit)
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        }
+    }
+
+    private var imageAspectRatio: CGFloat {
+        guard let image = platformImage, image.size.height > 0 else { return 1.5 }
+        return image.size.width / image.size.height
+    }
+
+#if os(iOS)
+    private var platformImage: UIImage? { data.flatMap(UIImage.init(data:)) }
+    private func imageView(_ image: UIImage) -> Image { Image(uiImage: image) }
+#elseif os(macOS)
+    private var platformImage: NSImage? { data.flatMap(NSImage.init(data:)) }
+    private func imageView(_ image: NSImage) -> Image { Image(nsImage: image) }
+#endif
 }

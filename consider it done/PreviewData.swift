@@ -11,7 +11,7 @@ import SwiftData
 enum PreviewData {
     @MainActor
     static var container: ModelContainer {
-        let schema = Schema([SavedItem.self])
+        let schema = Schema([SavedItem.self, Collection.self, Tag.self])
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         let container = try! ModelContainer(for: schema, configurations: [configuration])
 
@@ -24,8 +24,17 @@ enum PreviewData {
             "https://youtu.be/example"
         ]
             .compactMap(URL.init(string:))
-            .map(SavedItem.make(from:))
-            .forEach { container.mainContext.insert($0) }
+            .enumerated()
+            .forEach { index, url in
+                let source = LinkClassifier.classifySource(url)
+                container.mainContext.insert(SavedItem(
+                    sourceURL: url,
+                    source: source,
+                    title: url.host() ?? url.absoluteString,
+                    savedAt: Date(timeIntervalSinceNow: TimeInterval(-index * 3600)),
+                    isPinned: index == 0
+                ))
+            }
 
         return container
     }
