@@ -150,14 +150,15 @@ struct ContentView: View {
                     )
                     .padding(.vertical, 8)
                 }
-                .gesture(
-                    MagnifyGesture()
-                        .onEnded { value in
-                            changeDensity(with: value.magnification)
-                        }
-                )
             }
         }
+        .contentShape(Rectangle())
+        .simultaneousGesture(
+            MagnifyGesture()
+                .onEnded { value in
+                    changeDensity(with: value.magnification)
+                }
+        )
     }
 
     private var saveComposer: some View {
@@ -202,7 +203,14 @@ struct ContentView: View {
     }
 
     private func changeDensity(with magnification: CGFloat) {
-        let nextDensity = magnification > 1 ? density.nextCloser : density.nextFarther
+        let nextDensity: BrowseDensity
+        if magnification > 1.05 {
+            nextDensity = density.nextCloser
+        } else if magnification < 0.95 {
+            nextDensity = density.nextFarther
+        } else {
+            return
+        }
         guard nextDensity != density else { return }
 
         withAnimation(reduceMotion ? nil : .spring(response: 0.32, dampingFraction: 0.86)) {
