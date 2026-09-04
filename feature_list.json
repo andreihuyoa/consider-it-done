@@ -1,8 +1,26 @@
 {
   "features": [
     {
-      "id": "data-model-collection-tag-relations",
+      "id": "ui-navigation-save-modal-sort-archive",
       "priority": 1,
+      "area": "ui",
+      "title": "Refine navigation, add-link modal, sorting controls, and archive visibility",
+      "user_visible_behavior": "The app has The Fig and Collections destinations in a bottom tab bar; a thumb-reachable FAB opens an add-link sheet; saving dismisses the sheet without navigation and errors remain inline; The Fig uses a recent-first grouped sort dropdown with an active-choice checkmark, an Archived filter, and reversible archive/restore behavior.",
+      "status": "in_progress",
+      "verification": [
+        "./init.sh",
+        "xcodebuild -scheme 'consider it done' -sdk iphonesimulator -derivedDataPath /private/tmp/consider-it-done-ios-derived-data CODE_SIGNING_ALLOWED=NO build",
+        "xcodebuild -scheme 'consider it done' -destination 'platform=macOS' -derivedDataPath /private/tmp/consider-it-done-derived-data CODE_SIGNING_ALLOWED=NO build",
+        "Manual: on iOS, switch between The Fig and Collections, open the FAB sheet, save a valid URL, verify the sheet dismisses without navigation, and verify an invalid URL keeps an inline error",
+        "Manual: on iOS, open the sort menu and verify Recent, Importance, Reminder order with a checkmark only on the active choice; toggle Group and Archived; archive an item, filter to Archived, and restore it",
+        "Manual: on macOS MenuBarExtra, verify the same destinations, FAB sheet, sort/group state, and archive filter remain usable"
+      ],
+      "evidence": "2026-08-28: ./init.sh passed; iOS build completed for platform=iOS Simulator,name=iPhone 17 and no unit-test target is configured. Destination-free iOS Simulator SDK build passed with CODE_SIGNING_ALLOWED=NO. Unrestricted macOS build passed with CODE_SIGNING_ALLOWED=NO. Manual iOS/macOS UI verification is still pending.",
+      "notes": "User explicitly authorized this feature on 2026-08-28 after the previous session flagged it as unlisted. No SwiftData schema changes are required; existing archive fields are reused."
+    },
+    {
+      "id": "data-model-collection-tag-relations",
+      "priority": 2,
       "area": "data-model",
       "title": "Convert Collection and Tag to proper SwiftData @Model relationships",
       "user_visible_behavior": "Assigning a SavedItem to a Collection or Tag persists as a real relationship (not a raw string/array), so renaming a Collection updates everywhere it's used and deleting a Tag doesn't orphan data silently.",
@@ -17,7 +35,7 @@
     },
     {
       "id": "data-model-reminder-viewed",
-      "priority": 2,
+      "priority": 3,
       "area": "data-model",
       "title": "Add reminderDate and viewedAt fields to SavedItem",
       "user_visible_behavior": "User can set a reminder date on a saved item from the detail view; item is marked viewed (viewedAt set) the first time its detail view is opened.",
@@ -32,7 +50,7 @@
     },
     {
       "id": "thumbnail-rendering",
-      "priority": 3,
+      "priority": 4,
       "area": "ui",
       "title": "Render OG-parsed thumbnail image on grid cards and detail view",
       "user_visible_behavior": "Saved items with a parsed Open Graph image show that image on the grid card and detail view; items without one show the existing placeholder treatment (no fallback thumbnail generation).",
@@ -47,7 +65,7 @@
     },
     {
       "id": "macos-3col-branch",
-      "priority": 4,
+      "priority": 5,
       "area": "layout",
       "title": "Add macOS 3-column masonry branch to grid layout",
       "user_visible_behavior": "On macOS (MenuBarExtra popover), the mid-zoom masonry grid renders 3 columns instead of the iOS 2-column layout.",
@@ -61,7 +79,7 @@
     },
     {
       "id": "macos-full-window-app",
-      "priority": 5,
+      "priority": 6,
       "area": "platform",
       "title": "Full macOS WindowGroup app (beyond MenuBarExtra)",
       "user_visible_behavior": "App has a full resizable window on macOS, not just a MenuBarExtra popover.",

@@ -48,7 +48,7 @@ struct OrganizationGrid: View {
     let namespace: Namespace.ID
     let onSelect: (SavedItem) -> Void
 
-    @State private var sort: OrganizationSort = .importance
+    @State private var sort: OrganizationSort = .recent
     @State private var groupBySource = false
 
     private var groupedSaves: [(SaveSource, [SavedItem])] {
@@ -60,18 +60,51 @@ struct OrganizationGrid: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 8) {
-                Picker("Sort", selection: $sort) {
+            HStack(spacing: 0) {
+                Menu {
                     ForEach(OrganizationSort.allCases) { option in
-                        Text(option.rawValue).tag(option)
+                        Button {
+                            sort = option
+                        } label: {
+                            HStack {
+                                if sort == option {
+                                    Image(systemName: "checkmark")
+                                }
+                                Text(option.rawValue)
+                            }
+                        }
                     }
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "checkmark.circle")
+                            .foregroundStyle(Color.figAccent)
+                        Text(sort.rawValue)
+                            .foregroundStyle(Color.figTextPrimary)
+                        Image(systemName: "chevron.down")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(Color.figTextMuted)
+                    }
+                    .font(.callout.weight(.medium))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
                 }
-                .pickerStyle(.segmented)
-                .tint(.figAccent)
+                .buttonStyle(.plain)
+
+                Divider()
+                    .frame(height: 28)
 
                 Toggle("Group", isOn: $groupBySource)
                     .toggleStyle(.button)
                     .tint(.figAccent)
+                    .frame(maxWidth: .infinity)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(Color.figSurface)
+            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .stroke(Color.figBorder, lineWidth: 1)
             }
 
             if groupBySource {
@@ -102,8 +135,8 @@ struct OrganizationGrid: View {
 }
 
 enum OrganizationSort: String, CaseIterable, Identifiable {
-    case importance = "Importance"
     case recent = "Recent"
+    case importance = "Importance"
     case reminder = "Reminder"
     var id: String { rawValue }
 }
