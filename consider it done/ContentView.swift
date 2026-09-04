@@ -17,7 +17,6 @@ import AppKit
 enum FigArea: String, CaseIterable, Identifiable {
     case theFig = "The Fig"
     case collections = "Collections"
-    case save = "Save"
 
     var id: String { rawValue }
 }
@@ -47,47 +46,49 @@ struct ContentView: View {
     @State private var selectedSave: SavedItem?
     @State private var pendingURL = ""
     @State private var saveError: String?
+    @State private var showAddLinkSheet = false
+    @State private var showArchived = false
 
-    private var visibleSaves: [SavedItem] {
-        switch selectedArea {
-        case .theFig:
-            saves.filter { $0.archivedAt == nil }
-        case .collections:
-            saves.filter { $0.archivedAt == nil }
-        case .save:
-            saves
-        }
+    private var theFigSaves: [SavedItem] {
+        saves.filter { showArchived ? $0.archivedAt != nil : $0.archivedAt == nil }
+    }
+
+    private var collectionsSaves: [SavedItem] {
+        saves.filter { $0.archivedAt == nil }
     }
 
     var body: some View {
         ZStack {
             Color.figBackground.ignoresSafeArea()
 
-            VStack(alignment: .leading, spacing: 16) {
-                header
+            VStack(spacing: 0) {
+                VStack(alignment: .leading, spacing: 16) {
+                    header
 
-                Group {
-                    switch selectedArea {
-                    case .save:
-                        saveComposer
-                    case .collections:
-                        CollectionsOverview(saves: visibleSaves)
-                    case .theFig:
-                        browsingSurface
+                    Group {
+                        switch selectedArea {
+                        case .collections:
+                            CollectionsOverview(saves: collectionsSaves)
+                        case .theFig:
+                            browsingSurface
+                        }
                     }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 }
+                .padding(24)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
 
-                areaPicker
+                tabBar
             }
-            .padding(24)
+
+            fab
 
             if let selectedSave {
                 SaveDetailOverlay(
                     save: selectedSave,
                     namespace: saveNamespace,
                     onClose: { closeDetail() },
-                    onArchive: { archive(selectedSave) },
+                    onArchive: { closeDetail() },
                     onDelete: { remove(selectedSave) }
                 )
                 .transition(.opacity)
@@ -97,6 +98,9 @@ struct ContentView: View {
 #if os(macOS)
         .frame(minWidth: 760, minHeight: 620)
 #endif
+        .sheet(isPresented: $showAddLinkSheet) {
+            addLinkSheet
+        }
     }
 
     private var header: some View {
@@ -114,35 +118,73 @@ struct ContentView: View {
     private var headerSubtitle: String {
         switch selectedArea {
         case .theFig:
-            "\(visibleSaves.count) saved links."
+            showArchived ? "\(theFigSaves.count) archived links." : "\(theFigSaves.count) saved links."
         case .collections:
             "Collections are stacks of saved links, not folders."
-        case .save:
-            "Paste a URL to add it to The Fig."
         }
     }
 
-    private var areaPicker: some View {
-        Picker("Area", selection: $selectedArea) {
+    private var tabBar: some View {
+        HStack(spacing: 8) {
             ForEach(FigArea.allCases) { area in
-                Text(area.rawValue).tag(area)
+                Button {
+                    selectedArea = area
+                } label: {
+                    Text(area.rawValue)
+                        .font(.callout.weight(.semibold))
+                        .foregroundStyle(selectedArea == area ? Color.figTextPrimary : Color.figTextMuted)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(
+                            selectedArea == area ? Color.figSurface : Color.clear,
+                            in: RoundedRectangle(cornerRadius: 23, style: .continuous)
+                        )
+                }
+                .buttonStyle(.plain)
             }
         }
-        .pickerStyle(.segmented)
-        .tint(.figAccent)
+        .padding(4)
+        .background(Color.figSurfaceMuted)
+        .clipShape(RoundedRectangle(cornerRadius: 27, style: .continuous))
+        .padding(.horizontal, 24)
+        .padding(.bottom, 16)
+    }
+
+    private var fab: some View {
+        VStack {
+            Spacer()
+            HStack {
+                Spacer()
+                Button {
+                    showAddLinkSheet = true
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(Color.figSurface)
+                        .frame(width: 56, height: 56)
+                        .background(Color.figAccent, in: Circle())
+                        .shadow(color: .figShadow, radius: 12, x: 0, y: 6)
+                }
+                .buttonStyle(.plain)
+                .padding(.trailing, 24)
+                .padding(.bottom, 84)
+            }
+        }
     }
 
     private var browsingSurface: some View {
         VStack(alignment: .leading, spacing: 16) {
             DensityControl(density: $density)
 
-            if visibleSaves.isEmpty {
+            archivedFilterChip
+
+            if theFigSaves.isEmpty {
                 EmptyFigState(selectedArea: selectedArea)
             } else {
                 ScrollView {
                     DensityContainer(
                         density: density,
-                        saves: visibleSaves,
+                        saves: theFigSaves,
                         namespace: saveNamespace,
                         onSelect: { save in
                             openDetail(save)
@@ -161,14 +203,45 @@ struct ContentView: View {
         )
     }
 
-    private var saveComposer: some View {
+    private var archivedFilterChip: some View {
+        Button {
+            showArchived.toggle()
+        } label: {
+            Label("Archived", systemImage: showArchived ? "archivebox.fill" : "archivebox")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(showArchived ? Color.figSurface : Color.figTextMuted)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(
+                    showArchived ? Color.figAccent : Color.figSurfaceMuted,
+                    in: Capsule()
+                )
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var addLinkSheet: some View {
         VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Text("Add a link")
+                    .font(.title2.weight(.semibold))
+                    .foregroundStyle(Color.figTextPrimary)
+                Spacer()
+                Button {
+                    showAddLinkSheet = false
+                } label: {
+                    Image(systemName: "xmark")
+                }
+                .buttonStyle(.borderless)
+                .foregroundStyle(Color.figTextPrimary)
+            }
+
             TextField("https://", text: $pendingURL)
                 .textFieldStyle(.plain)
                 .font(.title3.weight(.medium))
                 .foregroundStyle(Color.figTextPrimary)
                 .padding(16)
-                .background(Color.figSurface)
+                .background(Color.figSurfaceMuted)
                 .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
 #if os(iOS)
                 .keyboardType(.URL)
@@ -198,8 +271,13 @@ struct ContentView: View {
             Text("Share Extension and macOS menu-bar capture will write into this same Save model.")
                 .font(.footnote)
                 .foregroundStyle(Color.figTextMuted)
+
+            Spacer()
         }
-        .frame(maxWidth: 620, alignment: .leading)
+        .padding(24)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .background(Color.figBackground)
+        .presentationDetents([.medium])
     }
 
     private func changeDensity(with magnification: CGFloat) {
@@ -231,11 +309,6 @@ struct ContentView: View {
         }
     }
 
-    private func archive(_ save: SavedItem) {
-        save.archivedAt = Date()
-        closeDetail()
-    }
-
     private func remove(_ save: SavedItem) {
         closeDetail()
         modelContext.delete(save)
@@ -254,7 +327,7 @@ struct ContentView: View {
                 modelContext.insert(SavedItem.make(from: url, metadata: metadata))
                 pendingURL = ""
                 saveError = nil
-                selectedArea = .theFig
+                showAddLinkSheet = false
             }
         }
     }

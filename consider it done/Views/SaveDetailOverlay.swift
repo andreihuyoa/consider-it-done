@@ -91,7 +91,7 @@ struct SaveDetailOverlay: View {
                     .tint(.figAccent)
 
                     Button(action: archive) {
-                        Label("Archive", systemImage: "archivebox")
+                        Label(save.archivedAt == nil ? "Archive" : "Restore", systemImage: save.archivedAt == nil ? "archivebox" : "arrow.uturn.backward")
                     }
                     .buttonStyle(.bordered)
 
@@ -134,6 +134,7 @@ struct SaveDetailOverlay: View {
     private func archive() {
         save.reminderDate = nil
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [save.id.uuidString])
+        save.archivedAt = save.archivedAt == nil ? Date() : nil
         onArchive()
     }
 

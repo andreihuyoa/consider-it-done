@@ -33,19 +33,15 @@ struct EmptyFigState: View {
             "No links in The Fig yet."
         case .collections:
             "No collection stacks yet."
-        case .save:
-            "Save a link."
         }
     }
 
     private var message: String {
         switch selectedArea {
         case .theFig:
-            "Use Save to add Instagram, YouTube, Reddit, or website URLs."
+            "Use the add button to save Instagram, YouTube, Reddit, or website URLs."
         case .collections:
             "As links build up, this area will make groups feel like physical stacks."
-        case .save:
-            "Paste a full URL to classify and store it."
         }
     }
 }
