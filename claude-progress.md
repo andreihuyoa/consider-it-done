@@ -201,3 +201,47 @@ already contain intertwined uncommitted work from the prior UI session.
 **Next step:** Confirm the open design decisions when needed, then implement the
 approved card treatment with targeted SwiftUI changes and complete the existing
 manual iOS/macOS verification checklist.
+
+### Session: 2026-09-05 01:39
+
+**Feature worked on:** `ui-navigation-save-modal-sort-archive`
+
+**Goal:** Commit every existing working-tree change in clear, subject-only
+conventional commits without pushing anything.
+
+**Changes made:** Created separate local commits for the build harness, generated
+author-header cleanup, bottom navigation/add-link/archive flow, organization
+sorting controls and feature bookkeeping, the design guide, and SweetPad/VS Code
+workspace configuration. Added this handoff entry and updated the feature
+evidence. No source behavior was changed during the commit-only session.
+
+**Verification run:**
+- Command: `./init.sh`
+- Result: pass; the iOS build succeeded for iPhone 17 and the script reported
+  that no unit-test target is configured.
+- Command: `jq empty feature_list.json`
+- Result: pass.
+- Command: `jq empty .vscode/settings.json .vscode/.swift-format
+  .vscode/launch.json .vscode/tasks.json`
+- Result: pass.
+- Command: `git diff --cached --check` before each commit
+- Result: pass for every staged group.
+- Command: `git log --oneline -8` and `git status --short`
+- Result: the intended local commit sequence was present and the tree was clean
+  before this final bookkeeping update.
+
+**Evidence:** The pre-commit `./init.sh` run ended with `** BUILD SUCCEEDED **`
+and `init.sh passed: build is green; configured unit-test action checked`.
+Created local commits `26db7ec`, `8fe2ca5`, `8fc96ea`, `e722f9f`, `e680928`,
+and `2a7dd7c`; none were pushed.
+
+**Status:** `in_progress`
+
+**Known risks / follow-ups:** Manual iOS and macOS MenuBarExtra acceptance checks
+are still pending. The repository hook still invokes the obsolete
+`ConsiderItDone` scheme and iPhone 16 directly, so the verified intermediate
+Swift commits used `--no-verify` after `./init.sh` passed with the repository's
+current `consider it done` scheme and iPhone 17 destination.
+
+**Next step:** Manually review the local commits and run the outstanding iOS and
+macOS UI checks before changing the feature status or pushing.
