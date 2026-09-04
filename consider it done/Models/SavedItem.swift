@@ -2,8 +2,6 @@
 //  SavedItem.swift
 //  consider it done
 //
-//  Created by Codex on 8/25/26.
-//
 
 import Foundation
 import SwiftData
