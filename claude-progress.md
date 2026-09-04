@@ -151,3 +151,53 @@ The attached repository reference is available as an image, but no tracked
 
 **Next step:** Run the listed manual iOS and macOS UI checks, then update the
 feature evidence/status. Keep the existing user changes intact when committing.
+
+### Session: 2026-09-04 00:15
+
+**Feature worked on:** `ui-navigation-save-modal-sort-archive`
+
+**Goal:** Create an implementation-facing `design.md` for the existing iOS UI
+work using the supplied mockup, two Dribbble references, the current repository,
+and the requested Emil Kowalski design-engineering skill.
+
+**Changes made:** Added `design.md` at the repository root with the product's
+visual character, reference translation, existing color tokens, typography,
+spacing, card construction, information hierarchy, screen composition, motion,
+accessibility, platform behavior, implementation guardrails, acceptance checks,
+and explicit open decisions. Updated this feature's evidence and notes in
+`feature_list.json`. Installed the requested `emil-design-eng` Codex skill for
+future sessions. No Swift source or SwiftData schema was changed.
+
+**Verification run:**
+- Command: `./init.sh` in the restricted environment
+- Result: fail (exit 70); CoreSimulatorService was unavailable and no iPhone 17
+  destination could be enumerated.
+- Command: `./init.sh` with Simulator access after all documentation changes
+- Result: pass; iOS build succeeded and the script reported that no unit-test
+  target is configured.
+- Command: `jq empty feature_list.json`
+- Result: pass; the feature state file is valid JSON.
+- Command: `awk '/[[:blank:]]$/ { print FNR ": trailing whitespace"; bad=1 }
+  END { exit bad }' design.md`
+- Result: pass; no trailing whitespace was found.
+- Command: `rg -n '^#{1,6} ' design.md` and reference-link search
+- Result: pass; document headings and both requested reference URLs are present.
+
+**Evidence:** The final `./init.sh` run produced `** BUILD SUCCEEDED **` and
+ended with `init.sh passed: build is green; configured unit-test action checked`.
+The design guide preserves the repository's fixed cream/orange/semantic-green
+palette, Open Graph-only thumbnail rule, three discrete density levels, and
+MenuBarExtra-only macOS scope.
+
+**Status:** `in_progress`
+
+**Known risks / follow-ups:** The existing manual iOS and macOS acceptance steps
+remain pending, so the feature was not marked passing. `design.md` intentionally
+leaves product naming, contextual “Recent Figs” headings, dark mode, and haptics
+as open decisions. The existing modified Swift files and `.vscode/` directory
+were preserved. No commit was made because the required source-of-truth files
+already contain intertwined uncommitted work from the prior UI session.
+
+**Next step:** Confirm the open design decisions when needed, then implement the
+approved card treatment with targeted SwiftUI changes and complete the existing
+manual iOS/macOS verification checklist.
