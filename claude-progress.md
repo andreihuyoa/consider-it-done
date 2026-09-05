@@ -245,3 +245,72 @@ current `consider it done` scheme and iPhone 17 destination.
 
 **Next step:** Manually review the local commits and run the outstanding iOS and
 macOS UI checks before changing the feature status or pushing.
+
+### Session: 2026-09-05 16:10
+
+**Feature worked on:** Planning only: `ui-redesign-main-navigation`,
+`ui-redesign-visual-system`, `ui-redesign-notifications`, and
+`ui-redesign-profile-settings`.
+
+**Goal:** Register the requested redesign scope, extract the actual Figma Main
+reference, and prepare explicit decisions for Carl before implementation.
+
+**Changes made:** Added four `not_started` entries to `feature_list.json` with
+acceptance steps, planning evidence, and explicit confirmation gates. Kept all
+existing entries and priorities unchanged. Added this handoff; no Swift source,
+SwiftData schema, business logic, design.md, or Figma document was modified.
+No Search entry was added because Search was supplied as an example, not a
+confirmed screen. Its own specification and feature entry are required if chosen.
+
+**Verification run:**
+- Command: `./init.sh` in the restricted environment
+- Result: exit 70; CoreSimulatorService was unavailable and the iPhone 17
+  destination could not be found. Rerunning with Simulator access resolved it.
+- Command: `./init.sh` with Simulator access
+- Result: exit 0; `** BUILD SUCCEEDED **`; `No unit-test target is configured;
+  skipping test action`; `init.sh passed: build is green; configured unit-test
+  action checked`.
+- Figma: `get_design_context(fileKey: nePXlf8cVoXJXtF5zWcTGp, nodeId: 1:11,
+  clientLanguages: swift, clientFrameworks: swiftui)` succeeded after locating
+  the selected frame in Figma Desktop using read-only UI inspection.
+
+**Evidence:** Figma Main is 402 x 874. Card x15/y218, 372 x 495; details area
+130 high with 15 horizontal/10 vertical inset; title x15/y135; bottom region
+402 x 90 at y762; circular controls 70 high; top pair group 152 x 70 at y65.
+The empty card capsule is named Time Pill. Actual Figma colors include
+#F7F2E9 background and green fields; typography includes Alte Haas Grotesk and
+Inter. These reference values do not override locked #F3EDE2 background,
+semantic green, system typography, or the three density modes. No navigation
+labels/icons or notification/profile destination designs are defined by Main.
+Source: https://www.figma.com/design/nePXlf8cVoXJXtF5zWcTGp/consider-it-done?node-id=1-11
+
+**Status:** All four redesign entries remain `not_started`. No feature
+implementation or manual feature acceptance was performed.
+
+**Known risks / follow-ups:** The brief calls Collection/Tag priority 1, but the
+live file has the prior navigation feature priority 1/in_progress and relations
+priority 2/not_started. Carl must confirm queue order; adding backlog entries
+at priorities 7-10 does not authorize starting them. Confirm final tabs/icons
+(proposal: Saves/bookmark, Collections/square.stack, Search/magnifyingglass),
+tab motion (proposal: 0.2-second easeInOut, none with Reduce Motion), and keeping
+the existing shared matchedGeometryEffect overlay around a TabView shell.
+Confirm notifications and profile/settings contents, actions, presentation,
+and animation; no account, inbox, or new permission behavior is inferred.
+Confirm contextual Recent Figs heading and Time Pill meaning or omission.
+The existing detail spring response is 0.34/damping 0.88, dismissal 0.28/0.9,
+and density 0.32/0.86; design.md's under-300ms direction needs reconciliation
+if these animations are changed. design.md's exact-two-tab rule conflicts with
+the proposed third tab; Carl must decide. Original feature manual checks and
+legacy verification commands remain outstanding and were not weakened.
+
+**Next step:** Ask Carl to confirm the recorded decisions before writing code.
+Then finalize relevant feature specifications (including a separate Search entry
+if approved), reconcile design.md, and implement only the single authorized
+entry after a green preflight. Otherwise retain the existing queue order.
+
+**Final validation:** Post-update `./init.sh` with Simulator access exited 0
+with `** BUILD SUCCEEDED **`; unit tests were explicitly skipped because no
+test target exists. `git diff --check` exited 0. A JSON comparison against HEAD
+confirmed all seven existing entries are unchanged and all four new entries
+have unique IDs, verification steps, and `not_started` status. Only the two
+bookkeeping files are included in the local planning commit; no push requested.
