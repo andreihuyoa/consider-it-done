@@ -314,3 +314,104 @@ test target exists. `git diff --check` exited 0. A JSON comparison against HEAD
 confirmed all seven existing entries are unchanged and all four new entries
 have unique IDs, verification steps, and `not_started` status. Only the two
 bookkeeping files are included in the local planning commit; no push requested.
+
+
+### Session: 2026-09-07 15:30
+
+**Feature worked on:** `ui-redesign-main-navigation`, then `ui-redesign-search`,
+then `ui-redesign-saves-carousel`, then `ui-redesign-visual-system`, implemented
+sequentially with build checkpoints. Integration fixes follow the manual checks.
+None is marked passing while its full verification list is incomplete.
+
+**Goal:** Act on Carl's explicit redesign-first priority and confirmed tabs,
+motion, shared detail architecture, and three density states. Register deferred
+model work without changing persistence.
+
+**Changes made:**
+- `feature_list.json`: reprioritized redesign ahead of the existing queue;
+  added Search, swipe-only carousel, optional soft-delete timestamp, and gated
+  local profile storage entries. Updated confirmations, evidence, and remaining
+  checks; kept the blocked macOS full-window entry byte-for-byte equivalent.
+- `design.md`: recorded confirmed three tabs, 0.2-second ease-in-out/no Reduce
+  Motion animation, shared overlay, and carousel override. Existing card tags
+  are explicitly preserved. Notifications remains two labeled list groups.
+- `ContentView.swift`: TabView now owns Saves/Collections/Search; a separate
+  bottom add slot accompanies the labeled iOS control strip. The wrapper owns
+  namespace, selected save, and overlay. Only the active tab participates as an
+  enabled geometry source; the overlay disables/hides underlying controls from
+  accessibility. Existing save flow, model state, and detail callbacks remain.
+- `SearchSavesView.swift`: local active-only title/URL/description/tag matching,
+  initial and no-result states, query retention, accessible result buttons,
+  and the shared detail callback. This behavior was explicitly confirmed.
+- `SaveCarousel.swift`, `SaveCarouselCard.swift`, `DensityContainer.swift`, and
+  `DensityControl.swift`: closest density is a swipe-only front card with neutral
+  upcoming-card planes. Keep BrowseDensity.list for compatibility. Middle column
+  count and organization layout/sort/group algorithms remain unchanged; only
+  matched-geometry source-role plumbing changed in OrganizationTileLayout.
+- `SaveCards.swift`, `CollectionsOverview.swift`, `EmptyFigState.swift`, and
+  `SaveDetailOverlay.swift`: rounder surfaces, restrained shadows, system title
+  styles, labeled close controls, and detail action layout that avoids truncation.
+  SaveTagRow and all model/color-token/app-scene/MenuBarSaveView files unchanged.
+
+**Verification run:**
+- `./init.sh` at startup and after navigation, Search, carousel, visual, and final
+  integration changes. Final exit 0: `** BUILD SUCCEEDED **`; `No unit-test
+  target is configured; skipping test action`; `init.sh passed: build is green;
+  configured unit-test action checked`.
+- `xcodebuild -scheme 'consider it done' -destination 'platform=macOS'
+  -derivedDataPath /private/tmp/fig-redesign-macos-derived-data
+  CODE_SIGNING_ALLOWED=NO build`: final exit 0, `** BUILD SUCCEEDED **`.
+- `git diff --check`: exit 0.
+- Python JSON/source invariants: unique feature IDs; SaveTagRow, model files,
+  color tokens, app scenes, MenuBarSaveView, and blocked macOS feature unchanged.
+
+**Evidence:** Created an isolated iPhone 17 simulator named The Fig Redesign QA
+(AB209EBA-8BC9-42C1-9F02-0D69009B7B29) for test saves; existing simulator records
+were not edited. Tested example.com and example.org only in that isolated app.
+Observed three bottom labels with accessible selected state and separate Add Link.
+Invalid empty URL kept inline error and sheet open. Valid URL dismissed to Saves;
+saving from Search retained the tab and query. EXAMPLE matched both fixture URLs;
+Search-to-detail opened centered, and closing retained query. Switching tabs also
+retained the query. Archiving example.org removed it from active Search results.
+Clear restored initial prompt, zzzznoresult gave No Results, and whitespace-only
+query retained the initial prompt. Carousel left/right swipes changed 1 of 2 /
+2 of 2; swiping beyond either boundary did not advance. Archive of the front card
+returned safely to the remaining 1 of 1. No previous/next buttons were added.
+
+Failures resolved during this session: unsupported macOS .tabless style was
+replaced with supported .automatic; a misplaced isEnabled environment declaration
+was moved to OrganizationTileLayout. Subsequent iOS and macOS builds passed.
+Manual inspection caught intrinsic empty-tab white space, corrected with a full
+height frame; detail geometry initially aligned to its source card, corrected by
+explicitly disabling base geometry sources while the overlay is visible. The
+centered final overlay and untruncated vertical actions were rechecked in QA.
+
+**Status:** Implemented UI entries remain `in_progress`; Notifications remains
+`not_started`; profile/settings and user-profile storage remain `blocked` pending
+their explicit gates. No full feature acceptance or unit-test coverage claimed.
+
+**Known risks / follow-ups:**
+- Notifications filtering/presentation question is unanswered: proposal is a
+  top-right native sheet with active saves newest first and future reminders
+  soonest first, no extra section buttons. Only the two section labels/content
+  grouping are confirmed. Do not ship an inert notifications/settings control.
+- Settings and optional deletedAt are deferred; UserDefaults local profile
+  name/image storage must be confirmed before pickup. CloudKit is deferred.
+- Swipe-only carousel paging is explicitly accepted accessibility debt.
+- Actual pinch gesture, Reduce Motion, VoiceOver interaction, large Dynamic Type,
+  contrast, compact/landscape, description/tag/OG fixture coverage, deletion, and
+  full macOS manual acceptance are still pending. The density picker was tested;
+  do not conflate it with a physical pinch check.
+- The old macOS manual checklist expects navigation/detail screens that are not
+  present in the existing capture-only MenuBarSaveView. App scene also still has
+  the pre-existing WindowGroup. Both remain untouched per the user's scope rule;
+  clarify the checklist rather than silently changing it or marking it passed.
+- The checked-in pre-commit hook uses obsolete scheme ConsiderItDone and iPhone
+  16 for Swift changes. Use the verified current ./init.sh and final macOS build
+  as evidence; any local checkpoint commit must document a one-command hook
+  bypass without modifying the hook or weakening feature verification.
+
+**Next step:** Resolve Notifications presentation/filtering, then implement that
+single entry. Complete remaining manual acceptance and resolve the incompatible
+macOS checklist before marking any affected UI entry passing. Continue to defer
+Collection/Tag and all Settings/model work as explicitly requested.

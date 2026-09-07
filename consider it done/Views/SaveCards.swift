@@ -15,17 +15,18 @@ import AppKit
 #endif
 
 struct SaveGridCard: View {
+    @Environment(\.isEnabled) private var isEnabled
     let save: SavedItem
     let namespace: Namespace.ID
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             SaveThumbnail(data: save.thumbnailData)
-                .frame(width: 120)
+                .accessibilityHidden(true)
             SaveSourceMark(source: save.source)
 
             Text(save.title)
-                .font(.headline.weight(.semibold))
+                .font(.headline.bold())
                 .foregroundStyle(Color.figTextPrimary)
                 .lineLimit(save.source == .other ? 3 : 2)
 
@@ -41,12 +42,14 @@ struct SaveGridCard: View {
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.figSurface)
-        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-        .matchedGeometryEffect(id: save.id, in: namespace)
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .shadow(color: .figShadow, radius: 8, x: 0, y: 3)
+        .matchedGeometryEffect(id: save.id, in: namespace, isSource: isEnabled)
     }
 }
 
 struct SaveListCard: View {
+    @Environment(\.isEnabled) private var isEnabled
     let save: SavedItem
     let namespace: Namespace.ID
 
@@ -57,7 +60,7 @@ struct SaveListCard: View {
 
             VStack(alignment: .leading, spacing: 8) {
                 Text(save.title)
-                    .font(.headline.weight(.semibold))
+                    .font(.headline.bold())
                     .foregroundStyle(Color.figTextPrimary)
                     .lineLimit(2)
 
@@ -74,8 +77,9 @@ struct SaveListCard: View {
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.figSurface)
-        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-        .matchedGeometryEffect(id: save.id, in: namespace)
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .shadow(color: .figShadow, radius: 8, x: 0, y: 3)
+        .matchedGeometryEffect(id: save.id, in: namespace, isSource: isEnabled)
     }
 }
 

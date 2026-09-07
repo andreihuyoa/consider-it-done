@@ -17,9 +17,9 @@ struct DensityControl: View {
                 .foregroundStyle(Color.figTextSoft)
 
             Picker("Density", selection: $density) {
-                Image(systemName: "square.grid.3x3").tag(BrowseDensity.organization)
-                Image(systemName: "square.grid.2x2").tag(BrowseDensity.grid)
-                Image(systemName: "list.bullet").tag(BrowseDensity.list)
+                Label("Organization", systemImage: "square.grid.3x3").tag(BrowseDensity.organization)
+                Label("Masonry", systemImage: "square.grid.2x2").tag(BrowseDensity.grid)
+                Label("Carousel", systemImage: "rectangle.stack").tag(BrowseDensity.list)
             }
             .pickerStyle(.segmented)
             .frame(maxWidth: 260)

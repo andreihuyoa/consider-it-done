@@ -258,7 +258,7 @@ The three density levels represent different jobs, not just three card sizes.
 | ------------ | ---------------------- | --------------------------------------------------------- |
 | Organization | Understand the library | Mixed-height tiles or meaningful source/collection stacks |
 | Grid         | Browse visually        | Two-column iOS masonry; image-forward cards               |
-| List         | Find and scan          | Full-width rows with thumbnail, title, URL, and tags      |
+| Carousel     | Focus on one save      | Front card with upcoming saves stacked behind; swipe left/right |
 
 Pinch transitions snap between these three states. Avoid continuous card scaling,
 which makes text and hit targets feel unstable.
@@ -291,7 +291,7 @@ unless future research shows users cannot understand the metaphor.
 
 ### Bottom navigation and add action
 
-- Keep exactly two destinations: **The Fig** and **Collections**.
+- Keep exactly three destinations: **Saves**, **Collections**, and **Search** (confirmed 2026-09-07).
 - Keep the add action separate and thumb reachable.
 - Navigation labels remain visible; do not replace both destinations with
   unexplained icon-only circles from the visual references.
@@ -411,3 +411,31 @@ These choices are intentionally not resolved by this document:
 4. Whether haptic feedback should accompany save completion and density snaps.
 
 Until each choice is confirmed, preserve the current product behavior.
+
+
+## Confirmed redesign decisions — 2026-09-07
+
+The redesign now precedes Collection/Tag relationship work. Implement entries
+one at a time. The bottom navigation uses TabView with Saves (`bookmark`),
+Collections (`square.stack`), and Search (`magnifyingglass`), and a separate
+right-hand Add Link action. The view wrapping TabView owns the shared namespace,
+selected save, and SaveDetailOverlay; card matched-geometry IDs and tags stay
+unchanged. Tab changes use 0.2-second ease-in-out, with no animation for Reduce
+Motion. Keep existing detail and density springs; do not replace detail with a
+NavigationStack push.
+
+Closest density is now a swipe-only card carousel with a front card and upcoming
+cards behind. This explicitly overrides the earlier full-card list direction.
+Middle density retains the current masonry column count; farthest retains the
+existing OrganizationGrid and OrganizationTileLayout with sort/group and source
+stacks. Preserve exactly three pinch states. Carousel backing cards are approved;
+use neutral surfaces and reserve green for semantic states. Known accepted
+accessibility debt: no previous/next buttons for carousel paging. Preserve existing
+card tag rendering.
+
+Search matches active saves locally by title, URL, description, and tag name and
+opens the shared detail overlay. Notifications contains only the two labeled list
+sections Recently saved and Upcoming reminders, without extra section buttons.
+Settings/model work follows the redesign in separate entries. Optional deletedAt
+and profile name/image storage are not part of this UI pass; UserDefaults profile
+storage remains a proposal requiring confirmation, and CloudKit sync is deferred.

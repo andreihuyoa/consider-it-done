@@ -20,17 +20,16 @@ struct DensityContainer: View {
         case .grid:
             MasonryLayout(columns: masonryColumnCount, spacing: 12) {
                 ForEach(saves) { save in
-                    SaveGridCard(save: save, namespace: namespace)
-                        .onTapGesture { onSelect(save) }
+                    Button { onSelect(save) } label: {
+                        SaveGridCard(save: save, namespace: namespace)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(save.title)
+                    .accessibilityHint("Opens saved link details")
                 }
             }
         case .list:
-            LazyVStack(spacing: 8) {
-                ForEach(saves) { save in
-                    SaveListCard(save: save, namespace: namespace)
-                        .onTapGesture { onSelect(save) }
-                }
-            }
+            SaveCarousel(saves: saves, namespace: namespace, onSelect: onSelect)
         }
     }
 
@@ -142,6 +141,7 @@ enum OrganizationSort: String, CaseIterable, Identifiable {
 }
 
 struct OrganizationTileLayout: View {
+    @Environment(\.isEnabled) private var isEnabled
     let saves: [SavedItem]
     let namespace: Namespace.ID
     let onSelect: (SavedItem) -> Void
@@ -164,7 +164,7 @@ struct OrganizationTileLayout: View {
                     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 }
                 .buttonStyle(.plain)
-                .matchedGeometryEffect(id: save.id, in: namespace)
+                .matchedGeometryEffect(id: save.id, in: namespace, isSource: isEnabled)
             }
         }
     }

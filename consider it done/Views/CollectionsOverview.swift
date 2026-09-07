@@ -40,11 +40,11 @@ struct CollectionObjectCard: View {
 
     var body: some View {
         ZStack(alignment: .topLeading) {
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .fill(Color.figSurfaceMuted)
                 .offset(x: 12, y: 12)
 
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .fill(Color.figSurfaceSoft)
                 .offset(x: 6, y: 6)
 
@@ -56,7 +56,7 @@ struct CollectionObjectCard: View {
 
                 VStack(alignment: .leading, spacing: 8) {
                     Text(collection.name)
-                        .font(.title3.weight(.semibold))
+                        .font(.title3.bold())
                         .foregroundStyle(Color.figTextPrimary)
 
                     Text("\(saves.count) links")
@@ -67,7 +67,7 @@ struct CollectionObjectCard: View {
             .padding(16)
             .frame(maxWidth: .infinity, minHeight: 168, alignment: .topLeading)
             .background(Color.figSurface)
-            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         }
         .padding(.trailing, 12)
         .padding(.bottom, 12)

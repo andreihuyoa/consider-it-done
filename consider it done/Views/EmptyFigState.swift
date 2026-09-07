@@ -24,15 +24,17 @@ struct EmptyFigState: View {
         .padding(24)
         .frame(maxWidth: .infinity, minHeight: 220, alignment: .leading)
         .background(Color.figSurfaceSoft)
-        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
     }
 
     private var title: String {
         switch selectedArea {
         case .theFig:
-            "No links in The Fig yet."
+            "No saved links yet."
         case .collections:
             "No collection stacks yet."
+        case .search:
+            "Find a saved link."
         }
     }
 
@@ -42,6 +44,8 @@ struct EmptyFigState: View {
             "Use the add button to save Instagram, YouTube, Reddit, or website URLs."
         case .collections:
             "As links build up, this area will make groups feel like physical stacks."
+        case .search:
+            "Search titles, links, descriptions, and tags."
         }
     }
 }

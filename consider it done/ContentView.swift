@@ -17,8 +17,19 @@ import AppKit
 enum FigArea: String, CaseIterable, Identifiable {
     case theFig = "The Fig"
     case collections = "Collections"
+    case search = "Search"
 
     var id: String { rawValue }
+
+    var title: String { self == .theFig ? "Saves" : rawValue }
+
+    var symbol: String {
+        switch self {
+        case .theFig: "bookmark"
+        case .collections: "square.stack"
+        case .search: "magnifyingglass"
+        }
+    }
 }
 
 enum BrowseDensity: Int, CaseIterable {
@@ -61,27 +72,20 @@ struct ContentView: View {
         ZStack {
             Color.figBackground.ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                VStack(alignment: .leading, spacing: 16) {
-                    header
-
-                    Group {
-                        switch selectedArea {
-                        case .collections:
-                            CollectionsOverview(saves: collectionsSaves)
-                        case .theFig:
-                            browsingSurface
-                        }
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            tabContent
+                .safeAreaInset(edge: .bottom, spacing: 0) {
+#if os(iOS)
+                    tabBar
+#else
+                    Button("Add Link", systemImage: "plus") { showAddLinkSheet = true }
+                        .buttonStyle(.borderedProminent)
+                        .tint(.figAccent)
+                        .padding(16)
+#endif
                 }
-                .padding(24)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-
-                tabBar
-            }
-
-            fab
+                .disabled(selectedSave != nil)
+                .allowsHitTesting(selectedSave == nil)
+                .accessibilityHidden(selectedSave != nil)
 
             if let selectedSave {
                 SaveDetailOverlay(
@@ -103,73 +107,112 @@ struct ContentView: View {
         }
     }
 
-    private var header: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("The Fig")
-                .font(.largeTitle.weight(.semibold))
-                .foregroundStyle(Color.figTextPrimary)
+    private var tabContent: some View {
+        TabView(selection: $selectedArea) {
+            Tab("Saves", systemImage: "bookmark", value: FigArea.theFig) {
+                VStack(alignment: .leading, spacing: 16) {
+                    header(title: "Saves", subtitle: showArchived
+                        ? "\(theFigSaves.count) archived links."
+                        : "\(theFigSaves.count) saved links.")
+                    browsingSurface
+                }
+                .disabled(selectedArea != .theFig)
+                .padding(.horizontal, 24)
+                .padding(.top, 16)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .background(Color.figBackground)
+            }
+            Tab("Collections", systemImage: "square.stack", value: FigArea.collections) {
+                VStack(alignment: .leading, spacing: 16) {
+                    header(title: "Collections", subtitle: "Your saved links, collected.")
+                    CollectionsOverview(saves: collectionsSaves)
+                        .frame(maxHeight: .infinity, alignment: .top)
+                }
+                .padding(.horizontal, 24)
+                .padding(.top, 16)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .background(Color.figBackground)
+            }
+            Tab("Search", systemImage: "magnifyingglass", value: FigArea.search) {
+                SearchSavesView(
+                    saves: collectionsSaves,
+                    namespace: saveNamespace,
+                    isActive: selectedArea == .search,
+                    onSelect: openDetail
+                )
+                .disabled(selectedArea != .search)
+            }
+        }
+#if os(iOS)
+        .toolbarVisibility(.hidden, for: .tabBar)
+#else
+        .tabViewStyle(.automatic)
+#endif
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.2), value: selectedArea)
+    }
 
-            Text(headerSubtitle)
+    private func header(title: String, subtitle: String) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.largeTitle.bold())
+                .foregroundStyle(Color.figTextPrimary)
+                .accessibilityAddTraits(.isHeader)
+            Text(subtitle)
                 .font(.callout)
                 .foregroundStyle(Color.figTextSoft)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private var headerSubtitle: String {
-        switch selectedArea {
-        case .theFig:
-            showArchived ? "\(theFigSaves.count) archived links." : "\(theFigSaves.count) saved links."
-        case .collections:
-            "Collections are stacks of saved links, not folders."
-        }
-    }
-
+    // TabView owns destination identity; this strip reserves a separate add-action
+    // slot, matching the reference without presenting Add Link as a fourth tab.
     private var tabBar: some View {
-        HStack(spacing: 8) {
-            ForEach(FigArea.allCases) { area in
-                Button {
-                    selectedArea = area
-                } label: {
-                    Text(area.rawValue)
-                        .font(.callout.weight(.semibold))
-                        .foregroundStyle(selectedArea == area ? Color.figTextPrimary : Color.figTextMuted)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .background(
-                            selectedArea == area ? Color.figSurface : Color.clear,
-                            in: RoundedRectangle(cornerRadius: 23, style: .continuous)
-                        )
+        HStack(alignment: .center, spacing: 16) {
+            HStack(spacing: 4) {
+                ForEach(FigArea.allCases) { area in
+                    Button {
+                        withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.2)) {
+                            selectedArea = area
+                        }
+                    } label: {
+                        VStack(spacing: 4) {
+                            Image(systemName: area.symbol)
+                                .font(.title3)
+                            Text(area.title)
+                                .font(.footnote)
+                                .bold(selectedArea == area)
+                        }
+                        .foregroundStyle(selectedArea == area ? Color.figTextPrimary : Color.figTextSoft)
+                        .frame(maxWidth: .infinity, minHeight: 56)
+                        .padding(.vertical, 4)
+                        .background(selectedArea == area ? Color.figSurface : Color.clear,
+                                    in: RoundedRectangle(cornerRadius: 20))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(area.title)
+                    .accessibilityAddTraits(selectedArea == area ? [.isSelected] : [])
+                    .accessibilityIdentifier("tab-\(area.id)")
                 }
-                .buttonStyle(.plain)
             }
-        }
-        .padding(4)
-        .background(Color.figSurfaceMuted)
-        .clipShape(RoundedRectangle(cornerRadius: 27, style: .continuous))
-        .padding(.horizontal, 24)
-        .padding(.bottom, 16)
-    }
+            .padding(4)
+            .background(Color.figSurfaceMuted, in: RoundedRectangle(cornerRadius: 24))
 
-    private var fab: some View {
-        VStack {
-            Spacer()
-            HStack {
-                Spacer()
-                Button {
-                    showAddLinkSheet = true
-                } label: {
-                    Image(systemName: "plus")
-                        .font(.title3.weight(.semibold))
-                        .foregroundStyle(Color.figSurface)
-                        .frame(width: 56, height: 56)
-                        .background(Color.figAccent, in: Circle())
-                        .shadow(color: .figShadow, radius: 12, x: 0, y: 6)
-                }
-                .buttonStyle(.plain)
-                .padding(.trailing, 24)
-                .padding(.bottom, 84)
+            Button {
+                showAddLinkSheet = true
+            } label: {
+                Label("Add Link", systemImage: "plus")
+                    .labelStyle(.iconOnly)
+                    .font(.title2.bold())
+                    .foregroundStyle(Color.figSurface)
+                    .frame(width: 56, height: 56)
+                    .background(Color.figAccent, in: Circle())
             }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("add-link")
         }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .background(Color.figBackground)
     }
 
     private var browsingSurface: some View {
@@ -179,7 +222,7 @@ struct ContentView: View {
             archivedFilterChip
 
             if theFigSaves.isEmpty {
-                EmptyFigState(selectedArea: selectedArea)
+                EmptyFigState(selectedArea: .theFig)
             } else {
                 ScrollView {
                     DensityContainer(
@@ -224,7 +267,7 @@ struct ContentView: View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
                 Text("Add a link")
-                    .font(.title2.weight(.semibold))
+                    .font(.title2.bold())
                     .foregroundStyle(Color.figTextPrimary)
                 Spacer()
                 Button {
@@ -234,6 +277,8 @@ struct ContentView: View {
                 }
                 .buttonStyle(.borderless)
                 .foregroundStyle(Color.figTextPrimary)
+                .frame(minWidth: 44, minHeight: 44)
+                .accessibilityLabel("Close add link")
             }
 
             TextField("https://", text: $pendingURL)
@@ -242,7 +287,7 @@ struct ContentView: View {
                 .foregroundStyle(Color.figTextPrimary)
                 .padding(16)
                 .background(Color.figSurfaceMuted)
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
 #if os(iOS)
                 .keyboardType(.URL)
                 .textInputAutocapitalization(.never)
@@ -267,10 +312,6 @@ struct ContentView: View {
                     .font(.callout)
                     .foregroundStyle(Color.figTextSoft)
             }
-
-            Text("Share Extension and macOS menu-bar capture will write into this same Save model.")
-                .font(.footnote)
-                .foregroundStyle(Color.figTextMuted)
 
             Spacer()
         }

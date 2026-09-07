@@ -2,7 +2,7 @@
   "features": [
     {
       "id": "ui-navigation-save-modal-sort-archive",
-      "priority": 1,
+      "priority": 21,
       "area": "ui",
       "title": "Refine navigation, add-link modal, sorting controls, and archive visibility",
       "user_visible_behavior": "The app has The Fig and Collections destinations in a bottom tab bar; a thumb-reachable FAB opens an add-link sheet; saving dismisses the sheet without navigation and errors remain inline; The Fig uses a recent-first grouped sort dropdown with an active-choice checkmark, an Archived filter, and reversible archive/restore behavior.",
@@ -20,7 +20,7 @@
     },
     {
       "id": "data-model-collection-tag-relations",
-      "priority": 2,
+      "priority": 22,
       "area": "data-model",
       "title": "Convert Collection and Tag to proper SwiftData @Model relationships",
       "user_visible_behavior": "Assigning a SavedItem to a Collection or Tag persists as a real relationship (not a raw string/array), so renaming a Collection updates everywhere it's used and deleting a Tag doesn't orphan data silently.",
@@ -31,11 +31,11 @@
         "Manual: create item, assign to Collection, rename Collection in UI, confirm item still shows correct name after relaunch"
       ],
       "evidence": "",
-      "notes": "Blocks data-model-reminder-viewed and thumbnail-rendering if they touch SavedItem's relationships. Do this first."
+      "notes": "Blocks data-model-reminder-viewed and thumbnail-rendering if they touch SavedItem's relationships. Do this first. 2026-09-07: user explicitly deferred this entry until after the UI redesign; do not silently resume during redesign."
     },
     {
       "id": "data-model-reminder-viewed",
-      "priority": 3,
+      "priority": 23,
       "area": "data-model",
       "title": "Add reminderDate and viewedAt fields to SavedItem",
       "user_visible_behavior": "User can set a reminder date on a saved item from the detail view; item is marked viewed (viewedAt set) the first time its detail view is opened.",
@@ -50,7 +50,7 @@
     },
     {
       "id": "thumbnail-rendering",
-      "priority": 4,
+      "priority": 24,
       "area": "ui",
       "title": "Render OG-parsed thumbnail image on grid cards and detail view",
       "user_visible_behavior": "Saved items with a parsed Open Graph image show that image on the grid card and detail view; items without one show the existing placeholder treatment (no fallback thumbnail generation).",
@@ -61,11 +61,11 @@
         "Manual: save a URL with an OG image, confirm it renders in both zoom levels that show images; save a URL without an OG image, confirm no fallback thumbnail is generated"
       ],
       "evidence": "",
-      "notes": "OG parsing only, per AGENTS.md \u2014 no oEmbed, no fallback thumbnail mechanism."
+      "notes": "OG parsing only, per AGENTS.md — no oEmbed, no fallback thumbnail mechanism."
     },
     {
       "id": "macos-3col-branch",
-      "priority": 5,
+      "priority": 25,
       "area": "layout",
       "title": "Add macOS 3-column masonry branch to grid layout",
       "user_visible_behavior": "On macOS (MenuBarExtra popover), the mid-zoom masonry grid renders 3 columns instead of the iOS 2-column layout.",
@@ -75,7 +75,7 @@
         "Manual: open MenuBarExtra popover on macOS, pinch/zoom to masonry level, confirm 3 columns render and reflow correctly on window resize"
       ],
       "evidence": "",
-      "notes": "Grid is currently hardcoded 2-column with no macOS branch \u2014 this is additive, should not touch iOS layout code path."
+      "notes": "Grid is currently hardcoded 2-column with no macOS branch — this is additive, should not touch iOS layout code path."
     },
     {
       "id": "macos-full-window-app",
@@ -90,10 +90,10 @@
     },
     {
       "id": "ui-redesign-main-navigation",
-      "priority": 7,
+      "priority": 1,
       "area": "ui",
       "title": "Adopt TabView bottom navigation with separate add and header actions",
-      "user_visible_behavior": "On iOS, approved labeled destinations appear in a TabView-based bottom navigation on the left; a separate right-side Add Link button opens the existing add-link sheet. Two top-right circular controls provide notifications and profile/settings access once their destination entries are implemented. Final tab count, names, icons, and header destinations require confirmation; do not ship inert controls.",
+      "user_visible_behavior": "On iOS, a TabView hosts Saves, Collections, and Search with labeled controls on the bottom left and a separate Add Link action on the right. The wrapper owns the shared matchedGeometryEffect detail overlay above tab-level state. Header Notifications and Settings destinations are integrated as their separate entries become available.",
       "verification": [
         "./init.sh",
         "xcodebuild -scheme 'consider it done' -destination 'platform=macOS' -derivedDataPath /private/tmp/fig-redesign-macos-derived-data CODE_SIGNING_ALLOWED=NO build",
@@ -104,13 +104,13 @@
         "Manual: verify approved tab motion with Reduce Motion off and on, VoiceOver labels/selection, 44-point targets, large Dynamic Type, compact width, landscape, and safe-area clearance",
         "Manual: macOS MenuBarExtra retains existing navigation, add sheet, and detail behavior without a WindowGroup"
       ],
-      "evidence": "2026-09-05 planning: Figma Main frame extracted; ./init.sh passed with Simulator access (BUILD SUCCEEDED); no unit-test target is configured. Feature implementation and manual acceptance have not run.",
-      "notes": "Planning entry only; implementation requires Carl confirmation. Existing priorities are unchanged: ui-navigation-save-modal-sort-archive is priority 1/in_progress; data-model-collection-tag-relations is priority 2/not_started. Confirm whether redesign may proceed alongside the model backlog (one UI entry at a time) or must wait. Preserve SwiftData schema, public API, business logic, three pinch density levels, locked AGENTS.md colors, and macOS MenuBarExtra-only scope. No migration required for this UI-only scope. Figma Main: https://www.figma.com/design/nePXlf8cVoXJXtF5zWcTGp/consider-it-done?node-id=1-11; design context extracted 2026-09-05 using figma-swiftui and figma-design-to-code. PROPOSAL ONLY: three tabs Saves (bookmark), Collections (square.stack), Search (magnifyingglass); add (plus), notifications (bell), profile/settings (person.crop.circle). design.md currently specifies exactly two tabs, The Fig and Collections; resolve that conflict explicitly. Search is an example in the request, not approved behavior: add a ui-redesign-search entry with a confirmed search specification before implementing it. Proposed tab transition easeInOut(duration: 0.2), no animation with Reduce Motion; confirm before code. Preserve shared matchedGeometryEffect detail overlay as the proposed base around the new TabView; no NavigationStack detail push. Header destination presentation and scope are pending.",
-      "status": "not_started"
+      "evidence": "2026-09-07 final verification: ./init.sh exited 0 (BUILD SUCCEEDED; no unit-test target is configured, test action explicitly skipped). Required macOS xcodebuild command exited 0 (BUILD SUCCEEDED). Isolated iPhone 17 QA: all three tab labels and selected state exposed in accessibility tree; Add Link is separate. Invalid/empty URL stayed in sheet with inline error. Valid example.com save dismissed to Saves; example.org saved from Search retained selected tab and query. Search result opened centered shared detail and dismissal retained query. Empty-tab sizing and overlay source-role issues found and fixed. Full header integration, gesture/motion and accessibility acceptance remain pending.",
+      "notes": "Confirmed 2026-09-07: redesign proceeds now; Collection/Tag relationship work is deferred. Preserve SwiftData schema and public API. Exactly three bottom tabs: Saves/bookmark, Collections/square.stack, Search/magnifyingglass; Add Link remains a separate action on the right. Tab transitions use easeInOut(duration: 0.2), no animation with Reduce Motion. The TabView wrapper owns the shared namespace, selected save, and SaveDetailOverlay; cards retain existing matched-geometry IDs and tags. macOS scope remains MenuBarExtra; no changes to the blocked full-window feature. No migration for UI changes. Search behavior belongs to ui-redesign-search. Notifications content belongs to ui-redesign-notifications. Settings content is deferred behind its model entries; do not invent controls. Existing full integration checks remain required before passing; dependency checks may remain pending while the destination entries are implemented sequentially. Implementation checkpoint: TabView owns content identity; its iOS tab bar is hidden and a labeled, accessible bottom control strip reserves the separate right-hand add slot required by the reference. This is a reference-placement compromise; native tabs remain the content container. Only the active tab registers enabled geometry sources; while details are open the base content is disabled/hidden to accessibility, leaving the overlay as the geometry source. Card geometry IDs unchanged. macOS uses the supported automatic TabView style; actual MenuBarSaveView was not changed. Pre-existing WindowGroup remains outside scope. The old verification request for macOS navigation/detail controls does not match the current capture-only MenuBarSaveView; flag for Carl, do not weaken the checklist or claim it passed. Notifications presentation/filtering question is still awaiting a reply; Settings content remains deferred.",
+      "status": "in_progress"
     },
     {
       "id": "ui-redesign-visual-system",
-      "priority": 8,
+      "priority": 5,
       "area": "ui",
       "title": "Apply design.md visual tokens to existing screens",
       "user_visible_behavior": "Existing saves browsing, Collections, add-link sheet, and save detail use the design.md color, system typography, spacing, surface, card, and accessible-control treatment while preserving current data and actions. Adapt the Figma Main composition to screen size and content without copying its fixed positions or replacing the three density modes.",
@@ -124,16 +124,16 @@
         "Manual: verify unchanged sort/group/archive/restore, reminder, collection, add-link, and detail dismissal behavior; macOS remains usable in MenuBarExtra",
         "Manual: verify each screen follows its confirmed motion specification, including matchedGeometryEffect for save detail and native add-sheet presentation"
       ],
-      "evidence": "2026-09-05 planning: Figma Main frame extracted; ./init.sh passed with Simulator access (BUILD SUCCEEDED); no unit-test target is configured. Feature implementation and manual acceptance have not run.",
-      "notes": "Planning entry only; implementation requires Carl confirmation. Existing priorities are unchanged: ui-navigation-save-modal-sort-archive is priority 1/in_progress; data-model-collection-tag-relations is priority 2/not_started. Confirm whether redesign may proceed alongside the model backlog (one UI entry at a time) or must wait. Preserve SwiftData schema, public API, business logic, three pinch density levels, locked AGENTS.md colors, and macOS MenuBarExtra-only scope. No migration required for this UI-only scope. Figma Main: https://www.figma.com/design/nePXlf8cVoXJXtF5zWcTGp/consider-it-done?node-id=1-11; design context extracted 2026-09-05 using figma-swiftui and figma-design-to-code. Measured reference: Main 402x874, title x15/y135 at 40px, content card x15/y218 size372x495, details y365 within card/height130, details inset15 horizontal/10 vertical, Time Pill 140x35 radius12, top controls group152x70 at y65, bottom region402x90 at y762 with 384x70 button group. Reference uses Alte Haas Grotesk/Inter and background #F7F2E9; reconcile to locked #F3EDE2 canvas, system text styles, 4/8/12/16/24/32 spacing, and 20-point card radius from design.md. Geometry is approximate intent, not fixed implementation frames. Decorative green and single-save backing stacks are not authorized. Confirm contextual Recent Figs heading and Time Pill content or omission. Per-screen motion remains to be confirmed: tab proposal 0.2s easeInOut; existing detail entry spring response 0.34/damping 0.88, exit 0.28/0.9; existing density spring 0.32/0.86; native add sheet; no new decorative Collections motion. Resolve design.md under300ms direction against existing springs before changing them.",
-      "status": "not_started"
+      "evidence": "2026-09-07 final verification: ./init.sh exited 0 (BUILD SUCCEEDED; no unit-test target is configured, test action explicitly skipped). Required macOS xcodebuild command exited 0 (BUILD SUCCEEDED). Isolated QA screenshots inspected: cream background, rounded card surfaces, restrained shadows, labeled bottom controls, stacked neutral carousel, Search empty/results states, and detail actions wrapping vertically with full labels. Source checks confirmed color token file, SaveTagRow, model files, app scene, MenuBarSaveView, and blocked macOS feature unchanged. Full acceptance across large text, contrast, VoiceOver, OG-image fixtures, compact/landscape, and macOS MenuBarExtra remains pending.",
+      "notes": "Confirmed 2026-09-07: redesign proceeds now; Collection/Tag relationship work is deferred. Preserve SwiftData schema and public API. Exactly three bottom tabs: Saves/bookmark, Collections/square.stack, Search/magnifyingglass; Add Link remains a separate action on the right. Tab transitions use easeInOut(duration: 0.2), no animation with Reduce Motion. The TabView wrapper owns the shared namespace, selected save, and SaveDetailOverlay; cards retain existing matched-geometry IDs and tags. macOS scope remains MenuBarExtra; no changes to the blocked full-window feature. No migration for UI changes. Apply design.md tokens, but preserve existing card tag rendering as explicitly requested. Figma Main node1:11 measures402x874 with card372x495 and side inset15; use responsive layout rather than fixed frames. The closest-density stack is now explicitly approved in ui-redesign-saves-carousel, overriding the earlier restriction on single-save backing stacks. Green remains semantic-only. Keep existing detail/density springs and native sheet motion; no added decorative screen animation. Time Pill and contextual heading were not approved; retain existing content rather than inventing metadata.",
+      "status": "in_progress"
     },
     {
       "id": "ui-redesign-notifications",
-      "priority": 9,
+      "priority": 3,
       "area": "ui",
       "title": "Define and implement the notifications destination",
-      "user_visible_behavior": "The top-right notifications control opens an accessible, dismissible notifications surface with content and actions explicitly confirmed by Carl. Notification source, empty state, read state, permissions behavior, and presentation are not yet specified.",
+      "user_visible_behavior": "Notifications contains exactly two labeled list sections: Recently saved and Upcoming reminders. No extra section buttons, inbox/read-state system, or new notification permission workflow.",
       "verification": [
         "./init.sh",
         "xcodebuild -scheme 'consider it done' -destination 'platform=macOS' -derivedDataPath /private/tmp/fig-redesign-macos-derived-data CODE_SIGNING_ALLOWED=NO build",
@@ -142,12 +142,12 @@
         "Manual: verify no unapproved permission requests, scheduling changes, SwiftData fields, or macOS window behavior are introduced"
       ],
       "evidence": "2026-09-05 planning: Figma Main frame extracted; ./init.sh passed with Simulator access (BUILD SUCCEEDED); no unit-test target is configured. Feature implementation and manual acceptance have not run.",
-      "notes": "Planning entry only; implementation requires Carl confirmation. Existing priorities are unchanged: ui-navigation-save-modal-sort-archive is priority 1/in_progress; data-model-collection-tag-relations is priority 2/not_started. Confirm whether redesign may proceed alongside the model backlog (one UI entry at a time) or must wait. Preserve SwiftData schema, public API, business logic, three pinch density levels, locked AGENTS.md colors, and macOS MenuBarExtra-only scope. No migration required for this UI-only scope. Figma Main: https://www.figma.com/design/nePXlf8cVoXJXtF5zWcTGp/consider-it-done?node-id=1-11; design context extracted 2026-09-05 using figma-swiftui and figma-design-to-code. User requested a notifications header control; the Main reference supplies no destination screen or behavior. Do not infer an inbox, unread persistence, account service, or new scheduling workflow. Confirm exact screen behavior and animation before code, then make verification concrete for those approved behaviors.",
+      "notes": "Confirmed 2026-09-07: redesign proceeds now; Collection/Tag relationship work is deferred. Preserve SwiftData schema and public API. Exactly three bottom tabs: Saves/bookmark, Collections/square.stack, Search/magnifyingglass; Add Link remains a separate action on the right. Tab transitions use easeInOut(duration: 0.2), no animation with Reduce Motion. The TabView wrapper owns the shared namespace, selected save, and SaveDetailOverlay; cards retain existing matched-geometry IDs and tags. macOS scope remains MenuBarExtra; no changes to the blocked full-window feature. No migration for UI changes. Confirmed two sections and no additional button. Proposed native sheet, active saves newest first, future reminders soonest first; final filtering/presentation confirmation pending. 2026-09-07 clarification is pending: proposed top-right native sheet, active saves newest first and future reminders soonest first. User answered the Search question but did not answer this question. Two-section content is confirmed; no Notifications implementation or inert header button was added.",
       "status": "not_started"
     },
     {
       "id": "ui-redesign-profile-settings",
-      "priority": 10,
+      "priority": 33,
       "area": "ui",
       "title": "Define and implement the profile/settings destination",
       "user_visible_behavior": "The top-right profile/settings control opens an accessible, dismissible surface containing only the profile information or settings explicitly confirmed by Carl. Exact content, available actions, and presentation are not yet specified.",
@@ -159,8 +159,71 @@
         "Manual: verify no unapproved account, authentication, persistence, schema, or macOS window behavior is introduced"
       ],
       "evidence": "2026-09-05 planning: Figma Main frame extracted; ./init.sh passed with Simulator access (BUILD SUCCEEDED); no unit-test target is configured. Feature implementation and manual acceptance have not run.",
-      "notes": "Planning entry only; implementation requires Carl confirmation. Existing priorities are unchanged: ui-navigation-save-modal-sort-archive is priority 1/in_progress; data-model-collection-tag-relations is priority 2/not_started. Confirm whether redesign may proceed alongside the model backlog (one UI entry at a time) or must wait. Preserve SwiftData schema, public API, business logic, three pinch density levels, locked AGENTS.md colors, and macOS MenuBarExtra-only scope. No migration required for this UI-only scope. Figma Main: https://www.figma.com/design/nePXlf8cVoXJXtF5zWcTGp/consider-it-done?node-id=1-11; design context extracted 2026-09-05 using figma-swiftui and figma-design-to-code. User requested profile/settings access; no destination design or list of settings was supplied. Confirm whether this is one combined surface and specify content and per-screen animation before code; then make verification concrete. No invented sign-in, profile storage, or settings toggles.",
-      "status": "not_started"
+      "notes": "Deferred after redesign by user on 2026-09-07. Depends on separately scoped data-model-soft-delete and data-model-user-profile. Do not invent Settings controls or profile persistence now. Profile UserDefaults/local-only proposal must be confirmed before implementation; CloudKit sync is deferred. Exact Settings actions and presentation remain unspecified.",
+      "status": "blocked"
+    },
+    {
+      "id": "ui-redesign-search",
+      "priority": 2,
+      "area": "ui",
+      "title": "Search active saved links locally",
+      "status": "in_progress",
+      "user_visible_behavior": "Search tab matches trimmed text locally against title, URL, description, and tag names of active saves only; results open the shared matchedGeometryEffect detail overlay. Empty query prompts for text and no matches show an empty result state.",
+      "verification": [
+        "./init.sh",
+        "xcodebuild -scheme 'consider it done' -destination 'platform=macOS' -derivedDataPath /private/tmp/fig-redesign-macos-derived-data CODE_SIGNING_ALLOWED=NO build",
+        "Manual: search by title, URL, description, and tag; check case-insensitive matching, whitespace-only input, empty results, and exclusion of archived saves",
+        "Manual: open a result, dismiss detail, and verify search text and selected tab remain; verify add-link sheet preserves Search tab",
+        "Manual: verify Dynamic Type, VoiceOver labels, keyboard dismissal, Reduce Motion, and no duplicate matched-geometry sources across tabs"
+      ],
+      "evidence": "2026-09-07 final verification: ./init.sh exited 0 (BUILD SUCCEEDED; no unit-test target is configured, test action explicitly skipped). Required macOS xcodebuild command exited 0 (BUILD SUCCEEDED). Isolated QA: EXAMPLE matched example.com and example.org; Search-to-detail opened correctly and closing retained EXAMPLE; switching to Saves and back retained query. After archiving example.org, only active example.com remained. Clear restored initial prompt; zzzznoresult produced No Results; whitespace-only input retained initial prompt. Search description/tag fixture tests, full VoiceOver, keyboard-on-screen, Dynamic Type, and Reduce Motion acceptance remain pending.",
+      "notes": "Confirmed 2026-09-07: redesign proceeds now; Collection/Tag relationship work is deferred. Preserve SwiftData schema and public API. Exactly three bottom tabs: Saves/bookmark, Collections/square.stack, Search/magnifyingglass; Add Link remains a separate action on the right. Tab transitions use easeInOut(duration: 0.2), no animation with Reduce Motion. The TabView wrapper owns the shared namespace, selected save, and SaveDetailOverlay; cards retain existing matched-geometry IDs and tags. macOS scope remains MenuBarExtra; no changes to the blocked full-window feature. No migration for UI changes. Search matching fields and active-only filtering confirmed in-session on 2026-09-07. No remote search, index, schema changes, or search history."
+    },
+    {
+      "id": "ui-redesign-saves-carousel",
+      "priority": 4,
+      "area": "ui",
+      "title": "Replace closest density with a swipe-only stacked card carousel",
+      "status": "in_progress",
+      "user_visible_behavior": "Closest density shows a front save card with upcoming cards stacked behind; swipe left or right to browse, with no previous/next buttons. Middle density retains masonryColumnCount (2 on mobile); farthest retains OrganizationGrid/OrganizationTileLayout, sorting, grouping, and source stacks. Pinch snaps through exactly three states.",
+      "verification": [
+        "./init.sh",
+        "xcodebuild -scheme 'consider it done' -destination 'platform=macOS' -derivedDataPath /private/tmp/fig-redesign-macos-derived-data CODE_SIGNING_ALLOWED=NO build",
+        "Manual: pinch from organization to masonry to carousel and back; confirm existing organization sorting/grouping/tiles and mobile masonry columns are unchanged",
+        "Manual: swipe both directions through multiple cards, check first/last boundaries, one save, no saves, archive/removal of selected card, and return from detail",
+        "Manual: verify carousel card opens the shared matchedGeometryEffect overlay; existing tags remain unchanged; no previous/next controls are shown",
+        "Manual: verify long content, compact width, landscape, Dynamic Type, and Reduce Motion; record the accepted swipe-only accessibility limitation"
+      ],
+      "evidence": "2026-09-07 final verification: ./init.sh exited 0 (BUILD SUCCEEDED; no unit-test target is configured, test action explicitly skipped). Required macOS xcodebuild command exited 0 (BUILD SUCCEEDED). Isolated QA: closest-density picker displayed stacked front card, then left swipe advanced 1 of 2 to 2 of 2; another left swipe stayed at last card. Right swipe returned to 1 of 2; another right swipe stayed at first. Front card opened shared detail; Archive dismissed it and safely showed remaining card as 1 of 1. No previous/next buttons. Empty library was observed before test saves. Actual pinch, deletion, text-size, landscape, and Reduce Motion checks remain pending.",
+      "notes": "Confirmed 2026-09-07: redesign proceeds now; Collection/Tag relationship work is deferred. Preserve SwiftData schema and public API. Exactly three bottom tabs: Saves/bookmark, Collections/square.stack, Search/magnifyingglass; Add Link remains a separate action on the right. Tab transitions use easeInOut(duration: 0.2), no animation with Reduce Motion. The TabView wrapper owns the shared namespace, selected save, and SaveDetailOverlay; cards retain existing matched-geometry IDs and tags. macOS scope remains MenuBarExtra; no changes to the blocked full-window feature. No migration for UI changes. Explicit closest-density override of AGENTS.md full-card list approved 2026-09-07. Preserve BrowseDensity.list case for API compatibility while changing its visual meaning to carousel. Known accepted accessibility debt: swipe-only paging without previous/next buttons; do not silently omit the carousel or add controls. Existing card tags unchanged. Carousel drag uses direct feedback and existing short spring settling; Reduce Motion disables settling animation. Neutral stacked surfaces represent other saves in the carousel; no decorative semantic-green fields. Organization sorting/grouping/layout algorithms are unchanged; only matched-geometry source-role plumbing in OrganizationTileLayout changed to support the approved shared overlay. Swipe-only accessibility debt is retained explicitly. The picker supplies access to all density modes; actual pinch interaction still requires manual confirmation."
+    },
+    {
+      "id": "data-model-soft-delete",
+      "priority": 30,
+      "area": "data-model",
+      "title": "Add optional deletion timestamp to saved items",
+      "status": "not_started",
+      "user_visible_behavior": "SavedItem gains an optional deletedAt timestamp for later soft-delete behavior. Filtering, restore, retention, and Settings actions must be specified separately before replacing existing removal behavior.",
+      "verification": [
+        "./init.sh",
+        "Manual: migrate an existing store and confirm saves and relationships survive with deletedAt nil; set a deletion date and verify persistence after relaunch"
+      ],
+      "evidence": "",
+      "notes": "User requested this separate entry after redesign on 2026-09-07. Migration note: adding an optional Date property with nil default is intended to be lightweight-migration-safe; validate against the actual existing store/schema before shipping. No model or removal changes during redesign."
+    },
+    {
+      "id": "data-model-user-profile",
+      "priority": 31,
+      "area": "data-model",
+      "title": "Define local profile name and image storage",
+      "status": "blocked",
+      "user_visible_behavior": "Store a user profile name and image locally using a storage design explicitly confirmed before implementation. CloudKit synchronization is deferred.",
+      "verification": [
+        "./init.sh",
+        "Manual: after approval, save and edit the profile name/image, relaunch and verify persistence; verify missing image and replacement behavior without CloudKit writes"
+      ],
+      "evidence": "",
+      "notes": "2026-09-07: user asks to propose local-only UserDefaults storage and explicitly requires confirmation before pickup. Proposed name and image data stored locally in UserDefaults; image encoding/size limits and removal semantics require confirmation. No SwiftData migration if that proposal is confirmed; no profile implementation authorized yet."
     }
   ]
 }

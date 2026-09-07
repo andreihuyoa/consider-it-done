@@ -40,11 +40,13 @@ struct SaveDetailOverlay: View {
                     }
                     .buttonStyle(.borderless)
                     .foregroundStyle(Color.figTextPrimary)
+                    .frame(minWidth: 44, minHeight: 44)
+                    .accessibilityLabel("Close details")
                 }
 
                 VStack(alignment: .leading, spacing: 8) {
                     Text(save.title)
-                        .font(.title2.weight(.semibold))
+                        .font(.title2.bold())
                         .foregroundStyle(Color.figTextPrimary)
 
                     Text(save.sourceURL.absoluteString)
@@ -83,30 +85,16 @@ struct SaveDetailOverlay: View {
                 }
                 .buttonStyle(.bordered)
 
-                HStack(spacing: 8) {
-                    Link(destination: save.sourceURL) {
-                        Label("Open Link", systemImage: "arrow.up.right")
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.figAccent)
-
-                    Button(action: archive) {
-                        Label(save.archivedAt == nil ? "Archive" : "Restore", systemImage: save.archivedAt == nil ? "archivebox" : "arrow.uturn.backward")
-                    }
-                    .buttonStyle(.bordered)
-
-                    Button(role: .destructive) {
-                        confirmsDeletion = true
-                    } label: {
-                        Label("Remove", systemImage: "trash")
-                    }
-                    .buttonStyle(.bordered)
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 8) { detailActions }
+                        .fixedSize(horizontal: true, vertical: false)
+                    VStack(alignment: .leading, spacing: 8) { detailActions }
                 }
             }
             .padding(24)
             .frame(maxWidth: 560, alignment: .leading)
             .background(Color.figSurface)
-            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
             .shadow(color: .figShadow, radius: 24, x: 0, y: 12)
             .matchedGeometryEffect(id: save.id, in: namespace)
             .padding(24)
@@ -125,6 +113,27 @@ struct SaveDetailOverlay: View {
                 Button("Cancel", role: .cancel) {}
             }
         }
+    }
+
+    @ViewBuilder
+    private var detailActions: some View {
+        Link(destination: save.sourceURL) {
+            Label("Open Link", systemImage: "arrow.up.right")
+        }
+        .buttonStyle(.borderedProminent)
+        .tint(.figAccent)
+
+        Button(action: archive) {
+            Label(save.archivedAt == nil ? "Archive" : "Restore", systemImage: save.archivedAt == nil ? "archivebox" : "arrow.uturn.backward")
+        }
+        .buttonStyle(.bordered)
+
+        Button(role: .destructive) {
+            confirmsDeletion = true
+        } label: {
+            Label("Remove", systemImage: "trash")
+        }
+        .buttonStyle(.bordered)
     }
 
     private func contains(_ collection: Collection) -> Bool {
