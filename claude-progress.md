@@ -498,3 +498,43 @@ Motion, VoiceOver interaction, landscape, and physical pinch checks remain.
 
 **Next step:** Adapt the density control for accessibility text sizes, then
 continue the remaining redesign acceptance without starting deferred model work.
+
+### Session: 2026-09-07 20:45
+
+**Feature worked on:** `ui-redesign-saves-carousel`
+
+**Goal:** Make the three-state density selector usable at accessibility text
+sizes while preserving its standard segmented presentation.
+
+**Changes made:** `DensityControl` now keeps the existing segmented picker at
+standard Dynamic Type sizes and presents a full-width labeled menu at
+accessibility sizes. Both presentations use the same Organization, Masonry, and
+Carousel titles and symbols and write to the existing `BrowseDensity` binding.
+No density state, gesture, schema, card tag, or layout algorithm changed.
+
+**Verification run:**
+- Command: `./init.sh`
+- Result: exit 0; `** BUILD SUCCEEDED **`; no unit-test target is configured.
+- Command: `xcodebuild -scheme 'consider it done' -destination 'platform=macOS'
+  -derivedDataPath /private/tmp/fig-redesign-macos-derived-data
+  CODE_SIGNING_ALLOWED=NO build`
+- Result: exit 0; `** BUILD SUCCEEDED **`.
+- Command: `xcrun swiftc -parse 'consider it done/Views/DensityControl.swift'`;
+  `jq empty feature_list.json`; `git diff --check`
+- Result: all exited 0.
+- Command: Simulator accessibility inspection at
+  accessibility-extra-extra-extra-large.
+- Result: the menu exposed Organization, Masonry, and Carousel; selecting
+  Carousel changed its label to `Density: Carousel`. The QA simulator was
+  restored to Large text after the check.
+
+**Status:** `in_progress`
+
+**Known risks / follow-ups:** Physical pinch, landscape, Reduce Motion, full
+VoiceOver interaction, deletion behavior, and the remaining visual-system
+fixtures still require manual acceptance. Swipe-only carousel paging remains the
+explicitly accepted accessibility debt.
+
+**Next step:** Continue the remaining redesign acceptance without starting
+deferred model work. Physical pinch, landscape, Reduce Motion, and the
+incompatible macOS checklist remain the main unresolved checks.
