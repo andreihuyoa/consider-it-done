@@ -538,3 +538,17 @@ explicitly accepted accessibility debt.
 **Next step:** Continue the remaining redesign acceptance without starting
 deferred model work. Physical pinch, landscape, Reduce Motion, and the
 incompatible macOS checklist remain the main unresolved checks.
+
+**Scope correction:** The user confirmed the iOS app is portrait-only and asked
+to stop checking landscape. The brief landscape inspection and uncommitted
+gesture experiment were discarded; no carousel gesture code changed. Landscape
+was removed from the active redesign verification. Increase Contrast was also
+checked on the isolated simulator: selected and unselected density states,
+labels, card content, Notifications, bottom destinations, and Add Link remained
+distinct. Increase Contrast was restored to its original disabled state.
+
+Settings remains separate later-priority work under
+`ui-redesign-profile-settings` (priority 33), after `data-model-soft-delete` and
+the still-blocked `data-model-user-profile`. It is a top-right destination, not a
+fourth bottom tab. The exact Settings content and local profile storage gate are
+still unresolved, so no Settings code was added.
