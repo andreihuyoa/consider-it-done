@@ -415,3 +415,53 @@ their explicit gates. No full feature acceptance or unit-test coverage claimed.
 single entry. Complete remaining manual acceptance and resolve the incompatible
 macOS checklist before marking any affected UI entry passing. Continue to defer
 Collection/Tag and all Settings/model work as explicitly requested.
+
+### Session: 2026-09-07 20:20
+
+**Feature worked on:** `ui-redesign-notifications`
+
+**Goal:** Implement the confirmed two-section Notifications destination after
+the user asked to continue, while leaving Settings and model work deferred.
+
+**Changes made:** Added `NotificationsView.swift`, presenting active saves newest
+first under Recently saved and future reminders soonest first under Upcoming
+reminders. Added the labeled top-right bell and native sheet presentation to
+`ContentView.swift`, with title clearance in Saves, Collections, and Search.
+No additional list buttons, read state, permission request, scheduling workflow,
+SwiftData field, app scene, MenuBar view, or color token was added or changed.
+
+**Verification run:**
+- Command: `./init.sh`
+- Result: exit 0; `** BUILD SUCCEEDED **`; no unit-test target is configured,
+  so the test action was explicitly skipped.
+- Command: `xcodebuild -scheme 'consider it done' -destination 'platform=macOS'
+  -derivedDataPath /private/tmp/fig-redesign-macos-derived-data
+  CODE_SIGNING_ALLOWED=NO build`
+- Result: exit 0; `** BUILD SUCCEEDED **`.
+- Command: `xcrun swiftc -parse` for ContentView, NotificationsView, and
+  SearchSavesView; `git diff --check`
+- Result: both exited 0.
+
+**Evidence:** On the isolated iPhone 17 QA simulator, the bell was exposed as
+Notifications with a 44-point target. The sheet showed exactly Recently saved
+and Upcoming reminders. The first section listed the active example.com fixture
+with its saved date. The second section first showed `No upcoming reminders.`;
+after assigning a future reminder, it listed the same fixture with the reminder
+date. The native sheet grabber dismissed to Saves and, when opened from Search,
+returned to the still-selected Search tab. Accessibility inspection exposed the
+sheet title, both section headings, combined title/date rows, and native dismiss
+control. At accessibility-extra-extra-extra-large, all content stayed readable
+and scrollable; the QA device was restored to its original large text size.
+
+**Status:** `in_progress`
+
+**Known risks / follow-ups:** Reduce Motion and full VoiceOver interaction were
+not manually exercised, so the feature remains in progress. The reminder used
+for the list check was created only in the isolated QA simulator, and notification
+delivery permission was denied; this entry itself adds no permission request.
+Settings/profile storage remains blocked pending its separate confirmation gate.
+
+**Next step:** Complete the remaining Reduce Motion and VoiceOver checks for
+Notifications, then finish the outstanding manual acceptance for navigation,
+Search, carousel, and visual-system entries. Continue deferring Collection/Tag
+and all Settings/model work as requested.

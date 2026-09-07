@@ -58,6 +58,7 @@ struct ContentView: View {
     @State private var pendingURL = ""
     @State private var saveError: String?
     @State private var showAddLinkSheet = false
+    @State private var showNotifications = false
     @State private var showArchived = false
 
     private var theFigSaves: [SavedItem] {
@@ -73,6 +74,22 @@ struct ContentView: View {
             Color.figBackground.ignoresSafeArea()
 
             tabContent
+                .overlay(alignment: .topTrailing) {
+                    Button {
+                        showNotifications = true
+                    } label: {
+                        Label("Notifications", systemImage: "bell")
+                            .labelStyle(.iconOnly)
+                            .font(.title3)
+                            .foregroundStyle(Color.figTextPrimary)
+                            .frame(width: 44, height: 44)
+                            .background(Color.figSurface, in: Circle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("notifications")
+                    .padding(.trailing, 24)
+                    .padding(.top, 16)
+                }
                 .safeAreaInset(edge: .bottom, spacing: 0) {
 #if os(iOS)
                     tabBar
@@ -104,6 +121,9 @@ struct ContentView: View {
 #endif
         .sheet(isPresented: $showAddLinkSheet) {
             addLinkSheet
+        }
+        .sheet(isPresented: $showNotifications) {
+            NotificationsView(saves: saves)
         }
     }
 
@@ -155,6 +175,7 @@ struct ContentView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .font(.largeTitle.bold())
+                .padding(.trailing, 56)
                 .foregroundStyle(Color.figTextPrimary)
                 .accessibilityAddTraits(.isHeader)
             Text(subtitle)
