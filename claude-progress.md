@@ -465,3 +465,36 @@ Settings/profile storage remains blocked pending its separate confirmation gate.
 Notifications, then finish the outstanding manual acceptance for navigation,
 Search, carousel, and visual-system entries. Continue deferring Collection/Tag
 and all Settings/model work as requested.
+
+### Session: 2026-09-07 20:30
+
+**Feature worked on:** `ui-redesign-main-navigation`
+
+**Goal:** Continue accessibility acceptance after the Notifications checkpoint.
+
+**Changes made:** Extracted the bottom controls into `FigBottomBar.swift`. The
+standard layout remains three labeled tabs on the left and Add Link on the right.
+At accessibility Dynamic Type sizes, the destinations become three full-width
+labeled rows and Add Link moves beneath them at the trailing edge.
+
+**Verification run:**
+- Command: `./init.sh`
+- Result: exit 0; `** BUILD SUCCEEDED **`; no unit-test target is configured.
+- Command: `xcrun swiftc -parse 'consider it done/ContentView.swift'
+  'consider it done/Views/FigBottomBar.swift'`; `git diff --check`
+- Result: both exited 0.
+
+**Evidence:** At accessibility-extra-extra-extra-large, the first compact layout
+split all three labels into unreadable fragments. After the adaptive change, the
+isolated iPhone 17 QA simulator displayed complete Saves, Collections, and Search
+labels in full-width rows, with selected styling and a separate trailing Add Link
+button. The accessibility tree retained all three labels and selected state.
+
+**Status:** `in_progress`
+
+**Known risks / follow-ups:** The density segmented control also truncates at the
+largest text size; address it under the carousel/visual-system entry. Reduce
+Motion, VoiceOver interaction, landscape, and physical pinch checks remain.
+
+**Next step:** Adapt the density control for accessibility text sizes, then
+continue the remaining redesign acceptance without starting deferred model work.

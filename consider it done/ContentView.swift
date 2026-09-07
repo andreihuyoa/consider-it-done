@@ -92,7 +92,11 @@ struct ContentView: View {
                 }
                 .safeAreaInset(edge: .bottom, spacing: 0) {
 #if os(iOS)
-                    tabBar
+                    FigBottomBar(
+                        selectedArea: $selectedArea,
+                        reduceMotion: reduceMotion,
+                        onAdd: { showAddLinkSheet = true }
+                    )
 #else
                     Button("Add Link", systemImage: "plus") { showAddLinkSheet = true }
                         .buttonStyle(.borderedProminent)
@@ -183,57 +187,6 @@ struct ContentView: View {
                 .foregroundStyle(Color.figTextSoft)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    // TabView owns destination identity; this strip reserves a separate add-action
-    // slot, matching the reference without presenting Add Link as a fourth tab.
-    private var tabBar: some View {
-        HStack(alignment: .center, spacing: 16) {
-            HStack(spacing: 4) {
-                ForEach(FigArea.allCases) { area in
-                    Button {
-                        withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.2)) {
-                            selectedArea = area
-                        }
-                    } label: {
-                        VStack(spacing: 4) {
-                            Image(systemName: area.symbol)
-                                .font(.title3)
-                            Text(area.title)
-                                .font(.footnote)
-                                .bold(selectedArea == area)
-                        }
-                        .foregroundStyle(selectedArea == area ? Color.figTextPrimary : Color.figTextSoft)
-                        .frame(maxWidth: .infinity, minHeight: 56)
-                        .padding(.vertical, 4)
-                        .background(selectedArea == area ? Color.figSurface : Color.clear,
-                                    in: RoundedRectangle(cornerRadius: 20))
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel(area.title)
-                    .accessibilityAddTraits(selectedArea == area ? [.isSelected] : [])
-                    .accessibilityIdentifier("tab-\(area.id)")
-                }
-            }
-            .padding(4)
-            .background(Color.figSurfaceMuted, in: RoundedRectangle(cornerRadius: 24))
-
-            Button {
-                showAddLinkSheet = true
-            } label: {
-                Label("Add Link", systemImage: "plus")
-                    .labelStyle(.iconOnly)
-                    .font(.title2.bold())
-                    .foregroundStyle(Color.figSurface)
-                    .frame(width: 56, height: 56)
-                    .background(Color.figAccent, in: Circle())
-            }
-            .buttonStyle(.plain)
-            .accessibilityIdentifier("add-link")
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-        .background(Color.figBackground)
     }
 
     private var browsingSurface: some View {
