@@ -766,3 +766,43 @@ Full VoiceOver interaction remains pending.
 **Next step:** Complete the physical priority-1 gesture and VoiceOver retest.
 If every required check passes, mark priority 1 passing and then resume the
 already-reminded later priorities one feature at a time.
+
+### Session: 2026-09-21 05:47
+
+**Feature worked on:** `ui-redesign-main-navigation`
+
+**Goal:** Record Carl's final physical-device acceptance, rerun the required
+build verification, and close priority 1 without starting another feature.
+
+**Changes made:** No Swift source or SwiftData schema changed. Updated
+`feature_list.json` with the final iPhone 17 acceptance evidence and changed
+`ui-redesign-main-navigation` from `in_progress` to `passing`.
+
+**Verification run:**
+
+- Command: `./init.sh`
+- Result: exit 0; `** BUILD SUCCEEDED **`; no unit-test target is configured,
+  so the test action was explicitly skipped.
+- Command: `xcodebuild -scheme 'consider it done' -destination 'platform=macOS'
+  -derivedDataPath /private/tmp/fig-redesign-macos-derived-data
+  CODE_SIGNING_ALLOWED=NO build`
+- Result: exit 0; `** BUILD SUCCEEDED **`.
+- Command: `jq empty feature_list.json` and `git diff --check`
+- Result: both exited 0.
+
+**Evidence:** Carl reported after the final physical iPhone 17 retest that
+everything works correctly. This closes the remaining gesture acceptance,
+including density pinch without feed scrolling, accidental card activation, or
+carousel paging, while intentional scrolling, card taps, and carousel swipes
+remain usable. Earlier session evidence covers the remaining navigation,
+accessibility, layout, motion, add-link, Notifications, detail, and macOS scope
+checks. Both required builds are currently green.
+
+**Status:** `passing`
+
+**Known risks / follow-ups:** No known priority-1 blocker remains. The project
+still has no configured unit-test target, so this completion relies on the
+recorded source/build checks and manual device acceptance.
+
+**Next step:** Continue with the highest-priority unfinished entry,
+`ui-redesign-search` (priority 2), one feature at a time.
