@@ -60,7 +60,13 @@ struct ContentView: View {
     @State private var showAddLinkSheet = false
     @State private var showNotifications = false
     @State private var showArchived = false
+    @State private var isRecoveringFromDensityGesture = false
+    @State private var interactionResetTask: Task<Void, Never>?
     @GestureState private var isChangingDensity = false
+
+    private var blocksSaveInteractions: Bool {
+        isChangingDensity || isRecoveringFromDensityGesture
+    }
 
     private var theFigSaves: [SavedItem] {
         saves.filter { showArchived ? $0.archivedAt != nil : $0.archivedAt == nil }
@@ -205,22 +211,24 @@ struct ContentView: View {
                         saves: theFigSaves,
                         namespace: saveNamespace,
                         onSelect: { save in
+                            guard !blocksSaveInteractions else { return }
                             openDetail(save)
                         }
                     )
                     .padding(.vertical, 8)
+                    .allowsHitTesting(!blocksSaveInteractions)
                 }
-                .scrollDisabled(isChangingDensity)
+                .scrollDisabled(blocksSaveInteractions)
             }
         }
         .contentShape(Rectangle())
-        .simultaneousGesture(
+        .highPriorityGesture(
             MagnifyGesture()
                 .updating($isChangingDensity) { _, isChangingDensity, _ in
                     isChangingDensity = true
                 }
                 .onEnded { value in
-                    changeDensity(with: value.magnification)
+                    endDensityGesture(with: value.magnification)
                 }
         )
     }
@@ -313,6 +321,18 @@ struct ContentView: View {
 
         withAnimation(reduceMotion ? nil : .spring(response: 0.32, dampingFraction: 0.86)) {
             density = nextDensity
+        }
+    }
+
+    private func endDensityGesture(with magnification: CGFloat) {
+        interactionResetTask?.cancel()
+        isRecoveringFromDensityGesture = true
+        changeDensity(with: magnification)
+
+        interactionResetTask = Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(200))
+            guard !Task.isCancelled else { return }
+            isRecoveringFromDensityGesture = false
         }
     }
 

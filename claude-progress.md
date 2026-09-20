@@ -716,3 +716,53 @@ VoiceOver interaction also remains pending.
 **Next step:** Retest priority 1 on the physical iPhone 17. After it passes,
 continue one feature at a time with priorities 2-5, 21, 22-25, and 30; a
 one-time reminder was requested for that backlog.
+
+### Session: 2026-09-21 05:17
+
+**Feature worked on:** `ui-redesign-main-navigation`
+
+**Goal:** Resolve the full three-way gesture conflict reported on the physical
+iPhone: pinching density must not scroll the feed, open a card, or page the
+carousel.
+
+**Changes made:** Refined the density gesture lifecycle in
+`consider it done/ContentView.swift`. The magnification gesture now has priority
+over descendant card and carousel gestures. While it is active, vertical
+scrolling and density-content hit testing are disabled and card selection has an
+explicit guard. A cancellable 200 ms post-pinch suppression window absorbs the
+last finger lift before restoring normal card taps, carousel swipes, and
+one-finger scrolling. Density thresholds, animations, and the three modes are
+unchanged.
+
+**Verification run:**
+
+- Command: `xcrun swiftc -parse 'consider it done/ContentView.swift'`
+- Result: exit 0.
+- Command: `./init.sh`
+- Result: exit 0; `** BUILD SUCCEEDED **`; no unit-test target is configured,
+  so the test action was explicitly skipped.
+- Command: `xcodebuild -scheme 'consider it done' -destination 'platform=macOS'
+  -derivedDataPath /private/tmp/fig-redesign-macos-derived-data
+  CODE_SIGNING_ALLOWED=NO build`
+- Result: exit 0; `** BUILD SUCCEEDED **`.
+- Command: `jq empty feature_list.json` and `git diff --check`
+- Result: both exited 0.
+
+**Evidence:** Source validation confirms one high-priority `MagnifyGesture`
+owns the two-finger interaction, the Saves scroll view is disabled for the
+pinch lifecycle, descendant card/carousel hit testing is suppressed, and
+selection remains guarded through the release window. Both required platform
+builds pass.
+
+**Status:** `in_progress`
+
+**Known risks / follow-ups:** Builds cannot simulate physical gesture
+arbitration. Retest all three cases on the physical iPhone 17: the feed must not
+scroll, no card detail may open, and the carousel must not change pages during
+or immediately after a density pinch. Confirm normal one-finger scrolling,
+intentional card taps, and intentional carousel swipes still work afterward.
+Full VoiceOver interaction remains pending.
+
+**Next step:** Complete the physical priority-1 gesture and VoiceOver retest.
+If every required check passes, mark priority 1 passing and then resume the
+already-reminded later priorities one feature at a time.
