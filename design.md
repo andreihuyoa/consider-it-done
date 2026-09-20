@@ -254,10 +254,10 @@ Reminder, and Archived states is confirmed.
 
 The three density levels represent different jobs, not just three card sizes.
 
-| Density      | Job                    | Card treatment                                            |
-| ------------ | ---------------------- | --------------------------------------------------------- |
-| Organization | Understand the library | Mixed-height tiles or meaningful source/collection stacks |
-| Grid         | Browse visually        | Two-column iOS masonry; image-forward cards               |
+| Density      | Job                    | Card treatment                                                  |
+| ------------ | ---------------------- | --------------------------------------------------------------- |
+| Organization | Understand the library | Mixed-height tiles or meaningful source/collection stacks       |
+| Grid         | Browse visually        | Two-column iOS masonry; image-forward cards                     |
 | Carousel     | Focus on one save      | Front card with upcoming saves stacked behind; swipe left/right |
 
 Pinch transitions snap between these three states. Avoid continuous card scaling,
@@ -411,7 +411,6 @@ These choices are intentionally not resolved by this document:
 4. Whether haptic feedback should accompany save completion and density snaps.
 
 Until each choice is confirmed, preserve the current product behavior.
-
 
 ## Confirmed redesign decisions — 2026-09-07
 

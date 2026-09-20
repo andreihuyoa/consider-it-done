@@ -17,6 +17,7 @@ past entries.
 **Changes made:** Files touched and what changed in each, brief.
 
 **Verification run:**
+
 - Command: `<exact command>`
 - Result: `<pass/fail + relevant output>`
 
@@ -78,6 +79,7 @@ uncommitted changes in `consider it done/ContentView.swift`,
 directory; these were preserved.
 
 **Verification run:**
+
 - Command: `./init.sh`
 - Result: fail (exit 65). The script requests scheme `ConsiderItDone`, but
   `xcodebuild -list` reports only scheme `consider it done`; CoreSimulator was
@@ -119,16 +121,17 @@ in `SaveDetailOverlay.swift` and removed stale `.save` cases from
 `EmptyFigState.swift`.
 
 **Verification run:**
+
 - Command: `./init.sh`
 - Result: pass; iOS build succeeded for `platform=iOS Simulator,name=iPhone
-  17`, and the script reported no unit-test target is configured.
+17`, and the script reported no unit-test target is configured.
 - Command: `xcodebuild -scheme 'consider it done' -sdk iphonesimulator
-  -derivedDataPath /private/tmp/consider-it-done-ios-derived-data
-  CODE_SIGNING_ALLOWED=NO build`
+-derivedDataPath /private/tmp/consider-it-done-ios-derived-data
+CODE_SIGNING_ALLOWED=NO build`
 - Result: pass; iOS Simulator SDK build succeeded.
 - Command: `xcodebuild -scheme 'consider it done' -destination
-  'platform=macOS' -derivedDataPath /private/tmp/consider-it-done-derived-data
-  CODE_SIGNING_ALLOWED=NO build`
+'platform=macOS' -derivedDataPath /private/tmp/consider-it-done-derived-data
+CODE_SIGNING_ALLOWED=NO build`
 - Result: pass; macOS compile/build succeeded.
 - Command: `git diff --check`
 - Result: pass.
@@ -169,6 +172,7 @@ and explicit open decisions. Updated this feature's evidence and notes in
 future sessions. No Swift source or SwiftData schema was changed.
 
 **Verification run:**
+
 - Command: `./init.sh` in the restricted environment
 - Result: fail (exit 70); CoreSimulatorService was unavailable and no iPhone 17
   destination could be enumerated.
@@ -178,7 +182,7 @@ future sessions. No Swift source or SwiftData schema was changed.
 - Command: `jq empty feature_list.json`
 - Result: pass; the feature state file is valid JSON.
 - Command: `awk '/[[:blank:]]$/ { print FNR ": trailing whitespace"; bad=1 }
-  END { exit bad }' design.md`
+END { exit bad }' design.md`
 - Result: pass; no trailing whitespace was found.
 - Command: `rg -n '^#{1,6} ' design.md` and reference-link search
 - Result: pass; document headings and both requested reference URLs are present.
@@ -216,13 +220,14 @@ workspace configuration. Added this handoff entry and updated the feature
 evidence. No source behavior was changed during the commit-only session.
 
 **Verification run:**
+
 - Command: `./init.sh`
 - Result: pass; the iOS build succeeded for iPhone 17 and the script reported
   that no unit-test target is configured.
 - Command: `jq empty feature_list.json`
 - Result: pass.
 - Command: `jq empty .vscode/settings.json .vscode/.swift-format
-  .vscode/launch.json .vscode/tasks.json`
+.vscode/launch.json .vscode/tasks.json`
 - Result: pass.
 - Command: `git diff --cached --check` before each commit
 - Result: pass for every staged group.
@@ -263,15 +268,16 @@ No Search entry was added because Search was supplied as an example, not a
 confirmed screen. Its own specification and feature entry are required if chosen.
 
 **Verification run:**
+
 - Command: `./init.sh` in the restricted environment
 - Result: exit 70; CoreSimulatorService was unavailable and the iPhone 17
   destination could not be found. Rerunning with Simulator access resolved it.
 - Command: `./init.sh` with Simulator access
 - Result: exit 0; `** BUILD SUCCEEDED **`; `No unit-test target is configured;
-  skipping test action`; `init.sh passed: build is green; configured unit-test
-  action checked`.
+skipping test action`; `init.sh passed: build is green; configured unit-test
+action checked`.
 - Figma: `get_design_context(fileKey: nePXlf8cVoXJXtF5zWcTGp, nodeId: 1:11,
-  clientLanguages: swift, clientFrameworks: swiftui)` succeeded after locating
+clientLanguages: swift, clientFrameworks: swiftui)` succeeded after locating
   the selected frame in Figma Desktop using read-only UI inspection.
 
 **Evidence:** Figma Main is 402 x 874. Card x15/y218, 372 x 495; details area
@@ -315,7 +321,6 @@ confirmed all seven existing entries are unchanged and all four new entries
 have unique IDs, verification steps, and `not_started` status. Only the two
 bookkeeping files are included in the local planning commit; no push requested.
 
-
 ### Session: 2026-09-07 15:30
 
 **Feature worked on:** `ui-redesign-main-navigation`, then `ui-redesign-search`,
@@ -328,6 +333,7 @@ motion, shared detail architecture, and three density states. Register deferred
 model work without changing persistence.
 
 **Changes made:**
+
 - `feature_list.json`: reprioritized redesign ahead of the existing queue;
   added Search, swipe-only carousel, optional soft-delete timestamp, and gated
   local profile storage entries. Updated confirmations, evidence, and remaining
@@ -354,13 +360,14 @@ model work without changing persistence.
   SaveTagRow and all model/color-token/app-scene/MenuBarSaveView files unchanged.
 
 **Verification run:**
+
 - `./init.sh` at startup and after navigation, Search, carousel, visual, and final
   integration changes. Final exit 0: `** BUILD SUCCEEDED **`; `No unit-test
-  target is configured; skipping test action`; `init.sh passed: build is green;
-  configured unit-test action checked`.
+target is configured; skipping test action`; `init.sh passed: build is green;
+configured unit-test action checked`.
 - `xcodebuild -scheme 'consider it done' -destination 'platform=macOS'
-  -derivedDataPath /private/tmp/fig-redesign-macos-derived-data
-  CODE_SIGNING_ALLOWED=NO build`: final exit 0, `** BUILD SUCCEEDED **`.
+-derivedDataPath /private/tmp/fig-redesign-macos-derived-data
+CODE_SIGNING_ALLOWED=NO build`: final exit 0, `** BUILD SUCCEEDED **`.
 - `git diff --check`: exit 0.
 - Python JSON/source invariants: unique feature IDs; SaveTagRow, model files,
   color tokens, app scenes, MenuBarSaveView, and blocked macOS feature unchanged.
@@ -391,6 +398,7 @@ centered final overlay and untruncated vertical actions were rechecked in QA.
 their explicit gates. No full feature acceptance or unit-test coverage claimed.
 
 **Known risks / follow-ups:**
+
 - Notifications filtering/presentation question is unanswered: proposal is a
   top-right native sheet with active saves newest first and future reminders
   soonest first, no extra section buttons. Only the two section labels/content
@@ -431,12 +439,13 @@ No additional list buttons, read state, permission request, scheduling workflow,
 SwiftData field, app scene, MenuBar view, or color token was added or changed.
 
 **Verification run:**
+
 - Command: `./init.sh`
 - Result: exit 0; `** BUILD SUCCEEDED **`; no unit-test target is configured,
   so the test action was explicitly skipped.
 - Command: `xcodebuild -scheme 'consider it done' -destination 'platform=macOS'
-  -derivedDataPath /private/tmp/fig-redesign-macos-derived-data
-  CODE_SIGNING_ALLOWED=NO build`
+-derivedDataPath /private/tmp/fig-redesign-macos-derived-data
+CODE_SIGNING_ALLOWED=NO build`
 - Result: exit 0; `** BUILD SUCCEEDED **`.
 - Command: `xcrun swiftc -parse` for ContentView, NotificationsView, and
   SearchSavesView; `git diff --check`
@@ -478,10 +487,11 @@ At accessibility Dynamic Type sizes, the destinations become three full-width
 labeled rows and Add Link moves beneath them at the trailing edge.
 
 **Verification run:**
+
 - Command: `./init.sh`
 - Result: exit 0; `** BUILD SUCCEEDED **`; no unit-test target is configured.
 - Command: `xcrun swiftc -parse 'consider it done/ContentView.swift'
-  'consider it done/Views/FigBottomBar.swift'`; `git diff --check`
+'consider it done/Views/FigBottomBar.swift'`; `git diff --check`
 - Result: both exited 0.
 
 **Evidence:** At accessibility-extra-extra-extra-large, the first compact layout
@@ -513,11 +523,12 @@ Carousel titles and symbols and write to the existing `BrowseDensity` binding.
 No density state, gesture, schema, card tag, or layout algorithm changed.
 
 **Verification run:**
+
 - Command: `./init.sh`
 - Result: exit 0; `** BUILD SUCCEEDED **`; no unit-test target is configured.
 - Command: `xcodebuild -scheme 'consider it done' -destination 'platform=macOS'
-  -derivedDataPath /private/tmp/fig-redesign-macos-derived-data
-  CODE_SIGNING_ALLOWED=NO build`
+-derivedDataPath /private/tmp/fig-redesign-macos-derived-data
+CODE_SIGNING_ALLOWED=NO build`
 - Result: exit 0; `** BUILD SUCCEEDED **`.
 - Command: `xcrun swiftc -parse 'consider it done/Views/DensityControl.swift'`;
   `jq empty feature_list.json`; `git diff --check`
@@ -552,3 +563,111 @@ Settings remains separate later-priority work under
 the still-blocked `data-model-user-profile`. It is a top-right destination, not a
 fourth bottom tab. The exact Settings content and local profile storage gate are
 still unresolved, so no Settings code was added.
+
+### Session: 2026-09-20 10:12
+
+**Feature worked on:** `ui-redesign-main-navigation`
+
+**Goal:** Resolve the two navigation acceptance conflicts confirmed by Carl:
+allow Notifications to satisfy the current header-destination integration while
+keeping Settings independent, and align macOS verification with the approved
+capture-only MenuBarExtra scope.
+
+**Changes made:** Updated `feature_list.json` so navigation acceptance verifies
+Notifications only and leaves `ui-redesign-profile-settings` as separate later
+work. Replaced the incompatible macOS navigation/add/detail check with a check
+that the existing capture-only MenuBarExtra remains usable and that no speculative
+WindowGroup or macOS navigation behavior is added. No Swift source, SwiftData
+schema, feature status, or prior feature record was removed. Pre-existing
+formatting edits in this progress file were preserved.
+
+**Verification run:**
+
+- Command: `jq empty feature_list.json`
+- Result: exit 0; the updated feature state is valid JSON.
+- Command: `./init.sh`
+- Result: exit 0; `** BUILD SUCCEEDED **`; no unit-test target is configured,
+  so the test action was explicitly skipped.
+- Command: `xcodebuild -scheme 'consider it done' -destination 'platform=macOS'
+-derivedDataPath /private/tmp/fig-redesign-macos-derived-data
+CODE_SIGNING_ALLOWED=NO build`
+- Result: exit 0; `** BUILD SUCCEEDED **`.
+
+**Evidence:** `ui-redesign-main-navigation` now states that Notifications is the
+only current header destination required for its acceptance, Settings is verified
+only under its own later entry, and macOS acceptance preserves the existing
+capture-only MenuBarExtra boundary. Both current iOS and macOS builds succeeded.
+
+**Status:** `in_progress`
+
+**Known risks / follow-ups:** Navigation still requires its outstanding manual
+VoiceOver, Reduce Motion, physical pinch, compact portrait, safe-area, and full
+add-link acceptance checks before it can be marked passing. Implemented or
+passing entries should remain in `feature_list.json`, and prior sessions must
+remain in this append-only progress log; removing them would erase authoritative
+scope, verification evidence, dependency context, and regression history.
+
+**Next step:** Complete the remaining manual Simulator acceptance for
+`ui-redesign-main-navigation`. If every listed check passes, record the evidence,
+mark that entry `passing`, and then continue to priority 2
+`ui-redesign-search`.
+
+### Session: 2026-09-20 11:15
+
+**Feature worked on:** `ui-redesign-main-navigation`
+
+**Goal:** Continue priority 1 through its current implementation audit and all
+acceptance checks that can be exercised with the installed Xcode and Simulator
+environment, without starting priority 2.
+
+**Changes made:** No Swift source or SwiftData schema change was needed. Audited
+`ContentView.swift`, `FigBottomBar.swift`, and `NotificationsView.swift` against
+the priority-1 behavior and SwiftUI accessibility guidance. Updated this feature's
+evidence in `feature_list.json` with current build, compact-width, largest Dynamic
+Type, Reduce Motion, and source-audit results. Existing uncommitted formatting
+changes in this progress file were preserved.
+
+**Verification run:**
+
+- Command: `./init.sh`
+- Result: exit 0; `** BUILD SUCCEEDED **`; no unit-test target is configured,
+  so the test action was explicitly skipped.
+- Command: `xcodebuild -scheme 'consider it done' -destination 'platform=macOS'
+-derivedDataPath /private/tmp/fig-redesign-macos-derived-data
+CODE_SIGNING_ALLOWED=NO build`
+- Result: exit 0; `** BUILD SUCCEEDED **`.
+- Command: `xcrun swiftc -parse` for `ContentView.swift`, `FigBottomBar.swift`,
+  and `NotificationsView.swift`; `jq empty feature_list.json`; `git diff --check`
+- Result: all exited 0.
+- Command: Simulator screenshots on isolated iPhone 17 QA at Large and
+  accessibility-extra-extra-extra-large, plus a fresh iPhone 17e iOS 27 launch.
+- Result: standard and accessibility layouts kept complete labels, separate Add
+  Link, and bottom safe-area clearance; compact portrait showed no clipping.
+- Command: Enable `ReduceMotionEnabled` on the isolated QA device, relaunch the
+  app, verify the preference reads `1`, then restore it to `0`; restore content
+  size to `large`.
+- Result: app relaunched successfully with Reduce Motion enabled; both isolated
+  settings were restored to their original values.
+
+**Evidence:** Source inspection confirmed exactly three enum-backed tab values,
+the separate Add Link action, Notifications native sheet, selected VoiceOver
+traits, labeled icon buttons, controls at least 44 points, bottom safe-area inset,
+matched-geometry source ownership, full-surface `MagnifyGesture`, and animation
+guards using `reduceMotion ? nil`. Current screenshots confirmed standard,
+largest-text, and compact portrait layout health.
+
+**Status:** `in_progress`
+
+**Known risks / follow-ups:** Full VoiceOver navigation and an actual two-finger
+pinch were not exercised. This Xcode installation exposes functioning headless
+Simulator services but no standalone Simulator UI, and supported `simctl`
+commands provide screenshots/settings but not touch or pinch injection. Build,
+source inspection, or density-picker use must not be presented as those missing
+manual interactions. No source defect was found that justified a speculative
+code change.
+
+**Next step:** On a visible Simulator or physical iPhone, run VoiceOver through
+Saves, Collections, Search, Add Link, and Notifications; physically pinch the
+Saves surface through Organization, Masonry, and Carousel in both directions.
+If both checks pass, append the exact observations, mark
+`ui-redesign-main-navigation` `passing`, and proceed to priority 2 Search.
