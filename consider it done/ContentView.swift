@@ -60,6 +60,7 @@ struct ContentView: View {
     @State private var showAddLinkSheet = false
     @State private var showNotifications = false
     @State private var showArchived = false
+    @GestureState private var isChangingDensity = false
 
     private var theFigSaves: [SavedItem] {
         saves.filter { showArchived ? $0.archivedAt != nil : $0.archivedAt == nil }
@@ -209,11 +210,15 @@ struct ContentView: View {
                     )
                     .padding(.vertical, 8)
                 }
+                .scrollDisabled(isChangingDensity)
             }
         }
         .contentShape(Rectangle())
         .simultaneousGesture(
             MagnifyGesture()
+                .updating($isChangingDensity) { _, isChangingDensity, _ in
+                    isChangingDensity = true
+                }
                 .onEnded { value in
                     changeDensity(with: value.magnification)
                 }

@@ -671,3 +671,48 @@ Saves, Collections, Search, Add Link, and Notifications; physically pinch the
 Saves surface through Organization, Masonry, and Carousel in both directions.
 If both checks pass, append the exact observations, mark
 `ui-redesign-main-navigation` `passing`, and proceed to priority 2 Search.
+
+### Session: 2026-09-21 05:00
+
+**Feature worked on:** `ui-redesign-main-navigation`
+
+**Goal:** Fix the physical-device gesture conflict where a two-finger density
+pinch also scrolled the Saves content, without changing the three density states
+or normal one-finger scrolling.
+
+**Changes made:** In `consider it done/ContentView.swift`, added a private
+`GestureState` that is active only while `MagnifyGesture` is changing. The Saves
+`ScrollView` is disabled for that gesture duration and automatically re-enabled
+when the pinch ends. Density thresholds, animation, layout, and schema are
+unchanged. No work from later priorities was started.
+
+**Verification run:**
+
+- Command: `xcrun swiftc -parse 'consider it done/ContentView.swift'`
+- Result: exit 0.
+- Command: `./init.sh`
+- Result: exit 0; `** BUILD SUCCEEDED **`; no unit-test target is configured,
+  so the test action was explicitly skipped.
+- Command: `xcodebuild -scheme 'consider it done' -destination 'platform=macOS'
+  -derivedDataPath /private/tmp/fig-redesign-macos-derived-data
+  CODE_SIGNING_ALLOWED=NO build`
+- Result: exit 0; `** BUILD SUCCEEDED **`.
+- Command: `jq empty feature_list.json` and `git diff --check`
+- Result: both exited 0.
+
+**Evidence:** The compiled view now uses `@GestureState` to identify the active
+density pinch and `.scrollDisabled(isChangingDensity)` on the Saves scroll view.
+This isolates scrolling only for the lifetime of the two-finger gesture while
+preserving ordinary one-finger scrolling. Both required platform builds pass.
+
+**Status:** `in_progress`
+
+**Known risks / follow-ups:** Gesture arbitration must be retested on the
+physical iPhone 17; compilation cannot prove touch interaction. Confirm that a
+pinch changes density without shifting the vertical scroll position and that
+one-finger scrolling still works before marking the feature passing. Full
+VoiceOver interaction also remains pending.
+
+**Next step:** Retest priority 1 on the physical iPhone 17. After it passes,
+continue one feature at a time with priorities 2-5, 21, 22-25, and 30; a
+one-time reminder was requested for that backlog.
