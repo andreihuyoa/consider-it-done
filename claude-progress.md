@@ -894,3 +894,55 @@ manual acceptance and platform builds.
 
 **Next step:** Continue with the highest-priority unfinished entry,
 `ui-redesign-notifications` (priority 3), one feature at a time.
+
+### Session: 2026-09-21 20:46
+
+**Features worked on:** `ui-redesign-notifications`,
+`ui-redesign-saves-carousel`, and `ui-navigation-save-modal-sort-archive`
+
+**Goal:** Record Carl's final device acceptance for Priorities 3, 4, and 21,
+run every required build command, and close the three already-implemented
+features without making source changes.
+
+**Changes made:** No Swift source or SwiftData schema changed. Updated
+`feature_list.json` evidence and changed Priorities 3, 4, and 21 from
+`in_progress` to `passing`.
+
+**Verification run:**
+
+- Command: `./init.sh`
+- Result: exit 0; `** BUILD SUCCEEDED **`; no unit-test target is configured,
+  so the test action was explicitly skipped.
+- Command: `xcodebuild -scheme 'consider it done' -destination 'platform=macOS'
+  -derivedDataPath /private/tmp/fig-redesign-macos-derived-data
+  CODE_SIGNING_ALLOWED=NO build`
+- Result: exit 0; the exact command completed successfully; a concise rerun also
+  exited 0.
+- Command: `xcodebuild -scheme 'consider it done' -sdk iphonesimulator
+  -derivedDataPath /private/tmp/consider-it-done-ios-derived-data
+  CODE_SIGNING_ALLOWED=NO build`
+- Result: exit 0; the exact command completed successfully; a concise rerun also
+  exited 0.
+- Command: `xcodebuild -scheme 'consider it done' -destination 'platform=macOS'
+  -derivedDataPath /private/tmp/consider-it-done-derived-data
+  CODE_SIGNING_ALLOWED=NO build`
+- Result: exit 0; the exact command completed successfully; a concise rerun also
+  exited 0.
+- Manual: complete Priority 3, Priority 4, and Priority 21 behavior
+- Result: Carl confirmed Notifications needs no changes; all three density zones,
+  Organization, and Masonry work correctly; and navigation, add-link behavior,
+  sorting, grouping, archive filtering, archive, restore, and the remaining
+  acceptance behavior pass.
+
+**Evidence:** The prior Simulator evidence plus Carl's final physical-device
+acceptance covers the complete manual checklists. All required iOS and macOS
+build commands exited 0 in this session.
+
+**Status:** `passing`
+
+**Known risks / follow-ups:** The project still has no configured unit-test
+target. Priority 4 retains its explicitly accepted swipe-only accessibility
+limitation. No open blocker remains for Priorities 3, 4, or 21.
+
+**Next step:** Continue with the highest-priority unfinished entry,
+`ui-redesign-visual-system` (priority 5), one feature at a time.
