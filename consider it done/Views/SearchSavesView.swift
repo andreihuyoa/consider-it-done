@@ -89,6 +89,11 @@ struct SearchSavesView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .foregroundStyle(Color.figTextPrimary)
         .background(Color.figBackground)
+#if os(iOS)
+        // Keep keyboard presentation from relaying out every search result and
+        // re-decoding its thumbnail while the keyboard animates onscreen.
+        .ignoresSafeArea(.keyboard, edges: .bottom)
+#endif
         .onChange(of: isActive) { _, active in
             if !active { searchFocused = false }
         }

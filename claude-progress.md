@@ -806,3 +806,91 @@ recorded source/build checks and manual device acceptance.
 
 **Next step:** Continue with the highest-priority unfinished entry,
 `ui-redesign-search` (priority 2), one feature at a time.
+
+### Session: 2026-09-21 18:13
+
+**Feature worked on:** `ui-redesign-search`
+
+**Goal:** Begin priority 2 and improve the sluggish Search keyboard presentation
+reported from the physical iPhone 17 without changing search scope or data.
+
+**Changes made:** Inspected the supplied 6.8-second iPhone 17 recording
+frame-by-frame. In `Views/SearchSavesView.swift`, kept keyboard presentation
+from resizing and relaying out the complete Search result hierarchy. In
+`Views/SaveCards.swift`, added an automatically evicting platform-image cache
+and reused the same decoded image for rendering and aspect-ratio calculation,
+removing repeated thumbnail decoding during focus and matched-detail updates.
+No SwiftData schema, matching fields, navigation, or remote behavior changed.
+
+**Verification run:**
+
+- Command: `./init.sh`
+- Result: exit 0; `** BUILD SUCCEEDED **`; no unit-test target is configured,
+  so the test action was explicitly skipped.
+- Command: `xcodebuild -scheme 'consider it done' -destination 'platform=macOS'
+  -derivedDataPath /private/tmp/fig-redesign-macos-derived-data
+  CODE_SIGNING_ALLOWED=NO build`
+- Result: exit 0; `** BUILD SUCCEEDED **`.
+- Command: destination-free iOS Simulator SDK build in the restricted sandbox
+- Result: failed because CoreSimulator disconnected and Apple's Swift macro
+  plugin server was blocked; the approved `./init.sh` path subsequently passed.
+- Command: Simulator UI automation for the live keyboard check
+- Result: the Device Hub accessibility connection timed out twice; no visual
+  keyboard-performance claim is recorded from that attempt.
+
+**Evidence:** Both required platform builds compile the shared cache and Search
+layout changes. Source inspection confirms the existing local matching remains
+title, URL, description, and tags over active saves only, with existing query
+retention, result navigation, accessible labels, interactive scroll dismissal,
+and Reduce Motion handling preserved.
+
+**Status:** `in_progress`
+
+**Known risks / follow-ups:** The supplied recording shows Search result/detail
+transitions but does not visibly show the software keyboard. Carl should retest
+keyboard opening on the physical iPhone 17. Priority 2 also still needs its
+description/tag fixture, full VoiceOver, Dynamic Type, Reduce Motion, add-link
+return, keyboard dismissal, and duplicate-geometry manual checks before it can
+be marked passing.
+
+**Next step:** Retest keyboard opening on the physical iPhone 17, then complete
+the remaining priority-2 manual acceptance checklist and mark it passing only
+if every check succeeds.
+
+### Session: 2026-09-21 18:55
+
+**Feature worked on:** `ui-redesign-search`
+
+**Goal:** Record Carl's completed physical-device acceptance, rerun the required
+builds, and close Priority 2 without creating a separate harness-only commit.
+
+**Changes made:** No Swift source or SwiftData schema changed. Updated
+`feature_list.json` with final manual evidence and changed
+`ui-redesign-search` from `in_progress` to `passing`.
+
+**Verification run:**
+
+- Command: `./init.sh`
+- Result: exit 0; `** BUILD SUCCEEDED **`; no unit-test target is configured,
+  so the test action was explicitly skipped.
+- Command: `xcodebuild -scheme 'consider it done' -destination 'platform=macOS'
+  -derivedDataPath /private/tmp/fig-redesign-macos-derived-data
+  CODE_SIGNING_ALLOWED=NO build`
+- Result: exit 0; `** BUILD SUCCEEDED **`.
+- Manual: all Priority 2 checks on the physical iPhone 17
+- Result: Carl confirmed everything passes, including keyboard opening and
+  dismissal, all specified matching fields and edge cases, archived exclusion,
+  detail/query/tab retention, add-link return, Dynamic Type, VoiceOver, Reduce
+  Motion, and matched-geometry source behavior.
+
+**Evidence:** The complete Priority 2 verification list is now covered by the
+recorded manual device acceptance and fresh successful iOS and macOS builds.
+
+**Status:** `passing`
+
+**Known risks / follow-ups:** No known Priority 2 blocker remains. The project
+still has no configured unit-test target, so completion relies on the recorded
+manual acceptance and platform builds.
+
+**Next step:** Continue with the highest-priority unfinished entry,
+`ui-redesign-notifications` (priority 3), one feature at a time.

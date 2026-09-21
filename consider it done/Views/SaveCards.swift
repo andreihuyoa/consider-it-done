@@ -198,13 +198,19 @@ extension SaveSource {
 struct SaveThumbnail: View {
     let data: Data?
 
+#if os(iOS)
+    private static let imageCache = NSCache<NSData, UIImage>()
+#elseif os(macOS)
+    private static let imageCache = NSCache<NSData, NSImage>()
+#endif
+
     var body: some View {
         if let image = platformImage {
             imageView(image)
                 .resizable()
                 .scaledToFill()
                 .frame(maxWidth: .infinity)
-                .aspectRatio(imageAspectRatio, contentMode: .fit)
+                .aspectRatio(imageAspectRatio(for: image), contentMode: .fit)
                 .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         } else {
             Color.figSurfaceMuted
@@ -214,16 +220,37 @@ struct SaveThumbnail: View {
         }
     }
 
-    private var imageAspectRatio: CGFloat {
-        guard let image = platformImage, image.size.height > 0 else { return 1.5 }
+    private func imageAspectRatio(for image: PlatformImage) -> CGFloat {
+        guard image.size.height > 0 else { return 1.5 }
         return image.size.width / image.size.height
     }
 
 #if os(iOS)
-    private var platformImage: UIImage? { data.flatMap(UIImage.init(data:)) }
+    private typealias PlatformImage = UIImage
+
+    private var platformImage: UIImage? {
+        cachedImage(using: UIImage.init(data:))
+    }
+
     private func imageView(_ image: UIImage) -> Image { Image(uiImage: image) }
 #elseif os(macOS)
-    private var platformImage: NSImage? { data.flatMap(NSImage.init(data:)) }
+    private typealias PlatformImage = NSImage
+
+    private var platformImage: NSImage? {
+        cachedImage(using: NSImage.init(data:))
+    }
+
     private func imageView(_ image: NSImage) -> Image { Image(nsImage: image) }
 #endif
+
+    private func cachedImage(using decode: (Data) -> PlatformImage?) -> PlatformImage? {
+        guard let data else { return nil }
+        let key = data as NSData
+        if let cachedImage = Self.imageCache.object(forKey: key) {
+            return cachedImage
+        }
+        guard let image = decode(data) else { return nil }
+        Self.imageCache.setObject(image, forKey: key)
+        return image
+    }
 }
