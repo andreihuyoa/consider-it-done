@@ -1186,3 +1186,26 @@ and the Organization layout passed.
 **Status:** `in_progress`.
 
 **Next step:** Andrei re-tests. Then mark `passing` and commit.
+
+### Session: 2026-09-28 (close-out)
+
+**Feature worked on:** `ui-card-theme-redesign`.
+
+**Status:** `passing`. Andrei accepted the entry after device testing across
+the review rounds and asked to mark it passing. The macOS manual checks were
+explicitly skipped by Andrei, and the macOS build passed.
+
+**Verification run:** `./init.sh` exit 0, plus the macOS and iOS simulator
+builds (BUILD SUCCEEDED), all from the last layouts round with no code
+changes since.
+
+**Known risks / follow-ups:** Saves created before the UTF-8 fix keep their
+garbled text. Collections, Search, Notifications, and the add-link sheet
+still use some stock controls. The `project.pbxproj` recommended-settings
+update, the `PreviewData.swift` edit, and `xcuserdata` are Andrei's
+uncommitted local changes and were left out of the commits.
+
+**Next step:** The highest-priority unfinished entry is
+`ui-redesign-visual-system` (5, `in_progress`, manual acceptance). Much of
+its scope is now covered by this entry, so Andrei should decide whether to
+close it or re-scope it.
