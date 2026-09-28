@@ -6,8 +6,8 @@
 #   2. If Swift source changed, the bookkeeping files were also touched.
 set -euo pipefail
 
-SCHEME="ConsiderItDone"
-IOS_DEST="platform=iOS Simulator,name=iPhone 16"
+SCHEME="consider it done"
+IOS_DEST="platform=iOS Simulator,name=iPhone 17"
 
 STAGED=$(git diff --cached --name-only --diff-filter=ACM)
 
