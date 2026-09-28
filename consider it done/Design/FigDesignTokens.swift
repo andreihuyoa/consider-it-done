@@ -5,18 +5,52 @@
 
 import SwiftUI
 
-extension Color {
-    static let figTextPrimary = Color(red: 47 / 255, green: 51 / 255, blue: 47 / 255)
-    static let figTextMuted = Color(red: 116 / 255, green: 120 / 255, blue: 112 / 255)
-    static let figTextSoft = Color(red: 86 / 255, green: 91 / 255, blue: 84 / 255)
-    static let figBackground = Color(red: 243 / 255, green: 237 / 255, blue: 226 / 255)
-    static let figSurface = Color(red: 255 / 255, green: 250 / 255, blue: 242 / 255)
-    static let figSurfaceMuted = Color(red: 236 / 255, green: 229 / 255, blue: 217 / 255)
-    static let figSurfaceSoft = Color(red: 251 / 255, green: 247 / 255, blue: 240 / 255)
-    static let figBorder = Color(red: 116 / 255, green: 120 / 255, blue: 112 / 255)
-    static let figBorderStrong = Color(red: 47 / 255, green: 51 / 255, blue: 47 / 255)
-    static let figAccent = Color(red: 238 / 255, green: 155 / 255, blue: 26 / 255)
-    static let figSuccess = Color(red: 95 / 255, green: 125 / 255, blue: 103 / 255)
-    static let figSuccessBackground = Color(red: 228 / 255, green: 239 / 255, blue: 218 / 255)
-    static let figShadow = Color(red: 72 / 255, green: 64 / 255, blue: 48 / 255).opacity(0.18)
+// MARK: - Color
+//
+// Color tokens live in Assets.xcassets/Tokens as colorsets with a light and a
+// dark appearance (values: design.md → "Color system"). Xcode generates the
+// `Color.figBackground`, `Color.figSurface`, … symbols from those names, so
+// views keep referencing tokens by name and never check `colorScheme`.
+
+// MARK: - Typography
+//
+// Headings use Vollkorn Medium Italic; body text and controls use Figtree.
+// Both scale with Dynamic Type through `relativeTo:`. Use them with the normal
+// `.font(...)` modifier: `.font(.heading(.title2))`, `.font(.text(.callout))`.
+// Letter spacing is tightened once at the app root with `.tracking(_:)`.
+
+extension Font {
+    /// Vollkorn Medium Italic, for screen, section, and save titles.
+    static func heading(_ style: TextStyle) -> Font {
+        .custom("VollkornItalic-Medium", size: baseSize(for: style), relativeTo: style)
+    }
+
+    /// Figtree, for body text, labels, and controls.
+    static func text(_ style: TextStyle, weight: Weight = .regular) -> Font {
+        .custom("Figtree-Regular", size: baseSize(for: style), relativeTo: style)
+            .weight(weight)
+    }
+
+    /// iOS default (Large) point sizes for each text style.
+    private static func baseSize(for style: TextStyle) -> CGFloat {
+        switch style {
+        case .largeTitle: 34
+        case .title: 28
+        case .title2: 22
+        case .title3: 20
+        case .headline: 17
+        case .body: 17
+        case .callout: 16
+        case .subheadline: 15
+        case .footnote: 13
+        case .caption: 12
+        case .caption2: 11
+        @unknown default: 17
+        }
+    }
+}
+
+extension CGFloat {
+    /// App-wide letter spacing applied at the root view.
+    static let textTracking: CGFloat = -0.2
 }

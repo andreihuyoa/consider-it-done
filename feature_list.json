@@ -125,7 +125,7 @@
         "Manual: verify each screen follows its confirmed motion specification, including matchedGeometryEffect for save detail and native add-sheet presentation"
       ],
       "evidence": "2026-09-07 final verification: ./init.sh exited 0 (BUILD SUCCEEDED; no unit-test target is configured, test action explicitly skipped). Required macOS xcodebuild command exited 0 (BUILD SUCCEEDED). Isolated QA screenshots inspected: cream background, rounded card surfaces, restrained shadows, labeled bottom controls, stacked neutral carousel, Search empty/results states, and detail actions wrapping vertically with full labels. At accessibility-extra-extra-extra-large, Density changed from compressed segments to a full-width menu whose accessibility tree exposed Organization, Masonry, and Carousel; selecting Carousel updated the control label. The simulator was restored to Large text afterward. Increase Contrast was enabled temporarily on the isolated simulator; the selected carousel segment, labels, card, bell, bottom destinations, and Add Link remained visibly distinct, then the setting was restored to disabled. Source checks confirmed color token file, SaveTagRow, model files, app scene, MenuBarSaveView, and blocked macOS feature unchanged. Full acceptance across full VoiceOver interaction, OG-image fixtures, compact portrait, and macOS MenuBarExtra remains pending.",
-      "notes": "Confirmed 2026-09-07: redesign proceeds now; Collection/Tag relationship work is deferred. Preserve SwiftData schema and public API. Exactly three bottom tabs: Saves/bookmark, Collections/square.stack, Search/magnifyingglass; Add Link remains a separate action on the right. Tab transitions use easeInOut(duration: 0.2), no animation with Reduce Motion. The TabView wrapper owns the shared namespace, selected save, and SaveDetailOverlay; cards retain existing matched-geometry IDs and tags. macOS scope remains MenuBarExtra; no changes to the blocked full-window feature. No migration for UI changes. Apply design.md tokens, but preserve existing card tag rendering as explicitly requested. Figma Main node1:11 measures402x874 with card372x495 and side inset15; use responsive layout rather than fixed frames. The closest-density stack is now explicitly approved in ui-redesign-saves-carousel, overriding the earlier restriction on single-save backing stacks. Green remains semantic-only. Keep existing detail/density springs and native sheet motion; no added decorative screen animation. Time Pill and contextual heading were not approved; retain existing content rather than inventing metadata.",
+      "notes": "Confirmed 2026-09-07: redesign proceeds now; Collection/Tag relationship work is deferred. Preserve SwiftData schema and public API. Exactly three bottom tabs: Saves/bookmark, Collections/square.stack, Search/magnifyingglass; Add Link remains a separate action on the right. Tab transitions use easeInOut(duration: 0.2), no animation with Reduce Motion. The TabView wrapper owns the shared namespace, selected save, and SaveDetailOverlay; cards retain existing matched-geometry IDs and tags. macOS scope remains MenuBarExtra; no changes to the blocked full-window feature. No migration for UI changes. Apply design.md tokens, but preserve existing card tag rendering as explicitly requested. Figma Main node1:11 measures402x874 with card372x495 and side inset15; use responsive layout rather than fixed frames. The closest-density stack is now explicitly approved in ui-redesign-saves-carousel, overriding the earlier restriction on single-save backing stacks. Green remains semantic-only. Keep existing detail/density springs and native sheet motion; no added decorative screen animation. Time Pill and contextual heading were not approved; retain existing content rather than inventing metadata. 2026-09-28: design.md now adds dark mode, Figtree, a new card anatomy, and removes the density picker. Those are tracked in ui-card-theme-redesign (priority 7) and are NOT part of this entry's scope. This entry's remaining work is manual acceptance of the light-mode token pass as implemented.",
       "status": "in_progress"
     },
     {
@@ -224,6 +224,55 @@
       ],
       "evidence": "",
       "notes": "2026-09-07: user asks to propose local-only UserDefaults storage and explicitly requires confirmation before pickup. Proposed name and image data stored locally in UserDefaults; image encoding/size limits and removal semantics require confirmation. No SwiftData migration if that proposal is confirmed; no profile implementation authorized yet."
+    },
+    {
+      "id": "ui-card-theme-redesign",
+      "priority": 7,
+      "area": "ui",
+      "title": "Save card redesign: dark mode, Figtree, source footer, user edits, custom image, no density picker",
+      "user_visible_behavior": "One combined entry (merged 2026-09-28 at Andrei's request to reduce session overhead). (1) Adaptive light/dark color tokens per design.md 'Color system'; light unchanged. (2) Headings use Vollkorn Medium Italic and body text uses Figtree (tracking −0.2 pt app-wide); both scale with Dynamic Type. (3) The visible density picker is removed; pinch stays, plus 'Closer layout'/'Wider layout' accessibility actions and ⌘=/⌘− shortcuts. (4) Masonry and carousel cards follow design.md 'Save card anatomy': media, title, description, tags, divider, source footer (platform mark, name, domain, Open Link). X/Twitter links are recognized as X. (5) Save detail lets the user edit title and description (description still auto-filled from Open Graph on save). (6) Save detail lets the user add, replace, or remove a custom image that takes priority over the OG image.",
+      "status": "in_progress",
+      "verification": [
+        "./init.sh",
+        "xcodebuild -scheme 'consider it done' -sdk iphonesimulator -derivedDataPath /private/tmp/consider-it-done-ios-derived-data CODE_SIGNING_ALLOWED=NO build",
+        "xcodebuild -scheme 'consider it done' -destination 'platform=macOS' -derivedDataPath /private/tmp/fig-redesign-macos-derived-data CODE_SIGNING_ALLOWED=NO build",
+        "Manual: in Simulator, toggle light/dark (Settings > Developer > Dark Appearance, or Environment Overrides) and check Saves (all three densities), Collections, Search, Notifications, add-link sheet, and save detail in both appearances",
+        "Manual: light mode is visually unchanged from before this entry (compare against screenshots taken at the start)",
+        "Manual: Increase Contrast legible in both appearances; macOS MenuBarExtra checked in both appearances",
+        "Manual: Figtree renders on iOS Simulator and in the macOS MenuBarExtra (not falling back to SF)",
+        "Manual: Dynamic Type from xSmall to AX5 scales all text without clipping cards, tags, or controls",
+        "Manual: search the source for `.font(.` on interface text; all remaining uses are justified in notes",
+        "Manual: Saves header shows no density control; sort/group/archive controls still work",
+        "Manual: pinch still snaps across all three densities with the existing springs and Reduce Motion behavior",
+        "Manual: with VoiceOver, the actions rotor on the saves area offers Closer layout / Wider layout and both change density",
+        "Manual: ⌘ + / ⌘ − change density in the macOS MenuBarExtra",
+        "Manual: cards with an OG image, without an image, with long titles, with no description, and with 0/3/5 tags all match the anatomy in light and dark",
+        "Manual: Open Link opens the URL; tapping elsewhere on the card still opens save detail with the existing matched-geometry transition",
+        "Manual: an x.com and a twitter.com link are saved as source X; existing saves keep their source",
+        "Manual: VoiceOver reads source, title, description, tags in order, and Open Link is a separate labeled button with a 44x44 hit area",
+        "Manual: save a link with og:description and confirm the description is pre-filled",
+        "Manual: edit title and description, relaunch the app, confirm edits persisted and Search matches the edited text",
+        "Manual: clearing the description leaves it empty (not re-fetched); an empty title is rejected or reverted (confirm the rule before implementing)",
+        "Manual: add a photo to a save with no OG image and to one with an OG image; both show the custom image on cards and detail",
+        "Manual: relaunch the app; custom images persist",
+        "Manual: Remove Custom Image restores the OG image, or the flat no-image field when none exists",
+        "Manual: install the previous build, save items, then install this build over it; existing saves open with no migration error"
+      ],
+      "evidence": "2026-09-28 implementation session: ./init.sh exited 0 (iOS BUILD SUCCEEDED; no unit-test target, test action skipped). macOS build (fig-redesign-macos-derived-data) BUILD SUCCEEDED. iOS simulator sdk build (consider-it-done-ios-derived-data) BUILD SUCCEEDED. Claude's quick Simulator check on iPhone 17 (not full acceptance): Figtree renders, including bold weights; masonry cards show media, 2-line title and description, divider, and a footer with a link glyph for Web sources, 'Web', and the circular Open Link button; dark appearance (xcrun simctl ui appearance dark) switches canvas, cards, text, bottom bar, and detail overlay to the dark tokens; the detail Edit button toggles editable Title/Description fields and Add Image. Simulator restored to light appearance afterwards. NOT yet verified: every Manual step in `verification` (Andrei will test manually), including the photo import, X links, the VoiceOver actions, the ⌘=/⌘− shortcuts, Dynamic Type sizes, the carousel, and migration of an existing store.",
+      "notes": "Merged from ui-color-dark-mode, ui-typography-figtree, ui-remove-density-control, ui-save-card-redesign, save-edit-title-description, data-model-custom-image. Andrei explicitly chose to start this ahead of ui-redesign-visual-system (5). Schema: adds optional SavedItem.customImageData (externalStorage) and SaveSource.twitter (raw-string enum); both are lightweight-migration-safe. Defaults chosen without explicit confirmation (flag if wrong): tags stay on cards; platform mark is a monogram circle (no brand logo assets); an empty title is not saved (edit reverts to the previous title); PhotosPicker on both iOS and macOS; imported images are downscaled to a 1600 px long edge, JPEG 0.8. Colors live in Assets.xcassets/Tokens as colorsets using Xcode's generated Color symbols, so token names are unchanged. Figtree variable TTF was copied from the local ~/Library/Fonts (no download); the OFL license is embedded in the font metadata. Review round 2026-09-28: the macOS manual checks were explicitly skipped by Andrei; the macOS build still passes."
+    },
+    {
+      "id": "onboarding-first-run",
+      "priority": 40,
+      "area": "ui",
+      "title": "First-run onboarding (deferred)",
+      "user_visible_behavior": "TBD. At minimum it teaches that pinching the Saves area switches between the three layouts.",
+      "verification": [
+        "TBD when specced"
+      ],
+      "notes": "Requested by Andrei 2026-09-28 as a later feature, after the density picker was removed. Deferred: do not start until the content, trigger, and screens are specced and confirmed.",
+      "status": "blocked",
+      "evidence": ""
     }
   ]
 }

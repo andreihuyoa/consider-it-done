@@ -946,3 +946,120 @@ limitation. No open blocker remains for Priorities 3, 4, or 21.
 
 **Next step:** Continue with the highest-priority unfinished entry,
 `ui-redesign-visual-system` (priority 5), one feature at a time.
+
+### Session: 2026-09-28
+
+**Feature worked on:** none implemented. This was a spec reconciliation
+before continuing `ui-redesign-visual-system`.
+
+**Goal:** Record Andrei's new save card direction (annotated mockup) and fix
+the places where it conflicted with `AGENTS.md` and `design.md`, before any
+code is written.
+
+**Changes made:**
+
+- `design.md`: added the adaptive light/dark color table (dark values drafted
+  from the mockup, pending device review) and switched typography from the
+  system font to Figtree with tightened tracking via `relativeTo:`. Added
+  “Save card anatomy” (source footer with platform, domain, Open Link) and
+  the image priority rule (custom → OG → no-image field). Documented
+  editable title/description and image actions in save detail, removed the
+  visible density picker (replaced by accessibility actions and ⌘ +/−),
+  resolved open decision 3, and added “Confirmed decisions — 2026-09-28”.
+- `AGENTS.md`: updated the color, typography, thumbnail, and grid conventions
+  to match. Also corrected the stale density list (“full-card list” →
+  “carousel”, per the 2026-09-07 decision).
+- `feature_list.json`: new entries `ui-color-dark-mode` (7),
+  `ui-typography-figtree` (8), `ui-remove-density-control` (9),
+  `ui-save-card-redesign` (10), `save-edit-title-description` (11),
+  `data-model-custom-image` (12), and `onboarding-first-run` (40,
+  `blocked`/deferred). Added a scope note to `ui-redesign-visual-system`.
+
+**Decisions confirmed by Andrei (AskUserQuestion):** dark palette drafted
+from the mockup; custom image allowed anytime with the OG image kept
+separately; source row = platform + domain (no handle parsing); density
+picker replaced by hidden accessibility actions.
+
+**Verification run:** none. The change is docs only, and no Swift source was
+touched. `./init.sh` was not run this session.
+
+**Status:** `ui-redesign-visual-system` unchanged (`in_progress`).
+
+**Known risks / follow-ups:**
+
+- Open questions recorded in entry notes: tags on the new card (the mockup
+  omits them), the platform logo asset approach, the empty-title rule, the
+  macOS image picker, and the custom image size limit.
+- Pre-existing issue: entries 22–24 list verification commands with
+  `-scheme ConsiderItDone` and `ConsiderItDoneTests` targets that do not
+  exist, so they will fail as written. Needs a decision before those entries
+  start: add a test target, or rewrite the commands.
+- `SavedItem` already has `collections`/`tags` relationships and
+  `reminderDate`/`viewedAt`, even though entries 22/23 are `not_started`.
+  Verify their status before starting them.
+- Uncommitted user change in `consider it done/PreviewData.swift` was left
+  untouched.
+
+**Next step:** Andrei decides the order. Either finish manual acceptance of
+`ui-redesign-visual-system` (priority 5), or re-prioritize so
+`ui-color-dark-mode` (7) starts first, since the new tokens change what that
+acceptance checks.
+
+### Session: 2026-09-28 (continued)
+
+**Feature worked on:** `ui-card-theme-redesign` (priority 7). Andrei merged
+entries 7–12 into this one entry to save session overhead, and chose to start
+it ahead of `ui-redesign-visual-system`.
+
+**Changes made:**
+
+- `Assets.xcassets/Tokens/*.colorset`: 13 light/dark color tokens. Xcode's
+  generated `Color.fig…` symbols replace the static colors, so call sites
+  are unchanged. `FigDesignTokens.swift` now holds the Figtree type scale
+  (`Font.fig`, `.figFont(_:weight:)`, with tracking scaled via `@ScaledMetric`).
+- `Fonts/Figtree-VariableFont_wght.ttf`: copied from the local
+  `~/Library/Fonts`, with the OFL license embedded in its metadata.
+  `Info.plist` gains `UIAppFonts` and `ATSApplicationFontsPath`.
+- `SavedItem`: `customImageData` (optional, externalStorage) and
+  `displayImageData`. `SaveSource.twitter` was added, and `LinkClassifier`
+  maps x.com, twitter.com, and t.co to it. Migration: both changes are
+  lightweight-safe (a new optional attribute; the raw-string enum is
+  unchanged for existing rows).
+- `SaveCards.swift`: new `SaveCard` (compact/hero), `SaveSourceFooter`, and
+  `SaveOpenLinkButton`. `SaveThumbnail` gains a corner radius and a clamped
+  aspect ratio of 0.75–2. `SaveGridCard` and `SaveCarouselCard` wrap
+  `SaveCard`, and their callers pass `onSelect` instead of wrapping in a
+  Button. `.other` now displays as "Web".
+- `ContentView`: the density picker was removed (`DensityControl.swift`
+  deleted), and the Closer/Wider layout accessibility actions and ⌘=/⌘−
+  shortcuts were added. The root font is Figtree.
+- `SaveDetailOverlay`: Edit/Done mode with title and description fields (an
+  empty title is not saved), plus Add/Replace/Remove Custom Image via
+  PhotosPicker. The scrim now uses `figShadow`.
+- New `Services/CustomImageProcessor.swift`: ImageIO downscale to a
+  1600 px long edge, JPEG 0.8.
+- Every remaining `.font(...)` in the views was converted to `.figFont(...)`.
+
+**Verification run:** `./init.sh` passed. macOS build: BUILD SUCCEEDED.
+iOS simulator sdk build: BUILD SUCCEEDED.
+
+**Evidence:** See the entry's `evidence`. It covers light and dark screenshots
+of the masonry cards and the detail edit mode on iPhone 17.
+
+**Status:** `in_progress`. It waits on Andrei's manual acceptance of the
+entry's Manual steps.
+
+**Known risks / follow-ups:**
+
+- The detail overlay does not scroll (pre-existing). In edit mode, a long
+  description on a small iPhone could push actions off screen.
+- Detail action buttons still use the system blue tint (pre-existing, outside
+  this entry).
+- The system accent in `Assets.xcassets/AccentColor` was not touched.
+- The macOS target also has a WindowGroup (pre-existing), despite the
+  MenuBarExtra-only rule.
+- Defaults to confirm: tags stay on cards; monogram platform marks; the
+  empty-title rule; the 1600 px image limit.
+
+**Next step:** Andrei tests the entry manually. Then mark it `passing`, or
+record the failures and fix them.
