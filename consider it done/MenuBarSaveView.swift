@@ -19,7 +19,7 @@ struct MenuBarSaveView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("The Fig")
-                .font(.title3.weight(.semibold))
+                .font(.heading(.title3))
                 .foregroundStyle(Color.figTextPrimary)
 
             TextField("https://", text: $pendingURL)
@@ -38,12 +38,14 @@ struct MenuBarSaveView: View {
             }
 
             Text(message)
-                .font(.footnote)
+                .font(.text(.footnote))
                 .foregroundStyle(Color.figTextSoft)
         }
         .padding(16)
         .frame(width: 320)
         .background(Color.figBackground)
+        .font(.text(.body))
+        .tracking(.textTracking)
     }
 
     private func savePendingURL() {

@@ -13,11 +13,11 @@ struct EmptyFigState: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
-                .font(.title3.weight(.semibold))
+                .font(.heading(.title3))
                 .foregroundStyle(Color.figTextPrimary)
 
             Text(message)
-                .font(.body)
+                .font(.text(.body))
                 .foregroundStyle(Color.figTextSoft)
                 .frame(maxWidth: 420, alignment: .leading)
         }

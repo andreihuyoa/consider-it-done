@@ -56,11 +56,11 @@ struct CollectionObjectCard: View {
 
                 VStack(alignment: .leading, spacing: 8) {
                     Text(collection.name)
-                        .font(.title3.bold())
+                        .font(.heading(.title3))
                         .foregroundStyle(Color.figTextPrimary)
 
                     Text("\(saves.count) links")
-                        .font(.callout)
+                        .font(.text(.callout))
                         .foregroundStyle(Color.figTextSoft)
                 }
             }

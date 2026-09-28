@@ -13,7 +13,7 @@ struct NotificationsView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("Notifications")
-                .font(.title2.bold())
+                .font(.heading(.title2))
                 .padding(.horizontal, 24)
                 .padding(.top, 24)
                 .padding(.bottom, 8)
@@ -71,10 +71,10 @@ struct NotificationsView: View {
     private func notificationRow(_ save: SavedItem, date: Date) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(save.title)
-                .font(.headline)
+                .font(.heading(.headline))
                 .fixedSize(horizontal: false, vertical: true)
             Text(date, format: .dateTime.month(.abbreviated).day().hour().minute())
-                .font(.footnote)
+                .font(.text(.footnote))
                 .foregroundStyle(Color.figTextSoft)
         }
         .padding(.vertical, 4)

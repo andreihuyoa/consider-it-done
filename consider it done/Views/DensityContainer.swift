@@ -20,12 +20,7 @@ struct DensityContainer: View {
         case .grid:
             MasonryLayout(columns: masonryColumnCount, spacing: 12) {
                 ForEach(saves) { save in
-                    Button { onSelect(save) } label: {
-                        SaveGridCard(save: save, namespace: namespace)
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel(save.title)
-                    .accessibilityHint("Opens saved link details")
+                    SaveGridCard(save: save, namespace: namespace) { onSelect(save) }
                 }
             }
         case .list:
@@ -80,10 +75,10 @@ struct OrganizationGrid: View {
                         Text(sort.rawValue)
                             .foregroundStyle(Color.figTextPrimary)
                         Image(systemName: "chevron.down")
-                            .font(.caption.weight(.semibold))
+                            .font(.text(.caption, weight: .semibold))
                             .foregroundStyle(Color.figTextMuted)
                     }
-                    .font(.callout.weight(.medium))
+                    .font(.text(.callout, weight: .medium))
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .contentShape(Rectangle())
                 }
@@ -152,14 +147,14 @@ struct OrganizationTileLayout: View {
             ForEach(Array(saves.enumerated()), id: \.element.id) { index, save in
                 Button { onSelect(save) } label: {
                     VStack(alignment: .leading, spacing: 8) {
-                        SaveSourceMark(source: save.source)
+                        SaveSourcePill(source: save.source)
                         Text(save.title)
-                            .font(.headline.weight(.semibold))
+                            .font(.heading(.headline))
                             .foregroundStyle(Color.figTextPrimary)
                             .lineLimit(tileLineLimit(for: save, index: index))
                     }
                     .padding(16)
-                    .frame(maxWidth: .infinity, minHeight: tileHeight(for: save, index: index), alignment: .topLeading)
+                    .frame(maxWidth: .infinity, alignment: .topLeading)
                     .background(Color.figSurface)
                     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 }

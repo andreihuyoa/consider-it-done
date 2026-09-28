@@ -27,6 +27,7 @@ enum LinkClassifier {
         if host.contains("youtube.com") || host.contains("youtu.be") { return .youtube }
         if host.contains("reddit.com") || host.contains("redd.it") { return .reddit }
         if host.contains("facebook.com") || host.contains("fb.watch") { return .facebook }
+        if ["x.com", "twitter.com", "t.co"].contains(where: { host == $0 || host.hasSuffix(".\($0)") }) { return .twitter }
         return .other
     }
 
@@ -97,6 +98,12 @@ private enum OpenGraphParser {
 
     private static func decodeEntities(_ value: String) -> String {
         guard let data = value.data(using: .utf8) else { return value }
-        return (try? NSAttributedString(data: data, options: [.documentType: NSAttributedString.DocumentType.html], documentAttributes: nil).string) ?? value
+        // Without an explicit encoding the HTML importer assumes Windows-1252,
+        // which turns UTF-8 punctuation like ’ into “â€™”.
+        let options: [NSAttributedString.DocumentReadingOptionKey: Any] = [
+            .documentType: NSAttributedString.DocumentType.html,
+            .characterEncoding: String.Encoding.utf8.rawValue,
+        ]
+        return (try? NSAttributedString(data: data, options: options, documentAttributes: nil).string) ?? value
     }
 }

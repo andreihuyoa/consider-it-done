@@ -28,7 +28,7 @@ struct SearchSavesView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Search")
-                .font(.largeTitle.bold())
+                .font(.heading(.largeTitle))
                 .padding(.trailing, 56)
                 .accessibilityAddTraits(.isHeader)
 

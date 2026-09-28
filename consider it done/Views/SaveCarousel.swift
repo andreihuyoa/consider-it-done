@@ -32,16 +32,11 @@ struct SaveCarousel: View {
                             .accessibilityHidden(true)
                     }
 
-                    Button {
+                    SaveCarouselCard(save: saves[focusedIndex], namespace: namespace) {
                         onSelect(saves[focusedIndex])
-                    } label: {
-                        SaveCarouselCard(save: saves[focusedIndex], namespace: namespace)
                     }
-                    .buttonStyle(.plain)
                     .id(saves[focusedIndex].id)
                     .offset(x: reduceMotion ? 0 : dragOffset * 0.35)
-                    .accessibilityLabel(saves[focusedIndex].title)
-                    .accessibilityHint("Opens saved link details")
                     .highPriorityGesture(
                         DragGesture(minimumDistance: 24)
                             .updating($dragOffset) { value, offset, _ in
@@ -60,12 +55,13 @@ struct SaveCarousel: View {
                             }
                     )
                 }
+                .frame(maxHeight: 640)
                 .padding(.bottom, 16)
 
                 // Swipe-only paging is explicitly accepted accessibility debt.
                 // Keep this position label informational; no prev/next buttons.
                 Text("\(focusedIndex + 1) of \(saves.count)")
-                    .font(.footnote)
+                    .font(.text(.footnote))
                     .foregroundStyle(Color.figTextSoft)
             }
             .padding(.horizontal, 4)

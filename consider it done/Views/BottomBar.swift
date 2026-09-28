@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct FigBottomBar: View {
+struct BottomBar: View {
     @Binding var selectedArea: FigArea
 
     let reduceMotion: Bool
@@ -18,19 +18,20 @@ struct FigBottomBar: View {
                         }
                     }
                     .padding(4)
-                    .background(Color.figSurfaceMuted, in: RoundedRectangle(cornerRadius: 24))
+                    .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 28))
                     addButton
                 }
             } else {
-                HStack(alignment: .center, spacing: 16) {
-                    tabButtons
-                    addButton
+                GlassEffectContainer(spacing: 16) {
+                    HStack(alignment: .center, spacing: 16) {
+                        tabButtons
+                        addButton
+                    }
                 }
             }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
-        .background(Color.figBackground)
     }
 
     private var tabButtons: some View {
@@ -41,9 +42,9 @@ struct FigBottomBar: View {
                 } label: {
                     VStack(spacing: 4) {
                         Image(systemName: area.symbol)
-                            .font(.title3)
+                            .font(.text(.title3))
                         Text(area.title)
-                            .font(.footnote)
+                            .font(.text(.footnote))
                             .bold(selectedArea == area)
                             .lineLimit(3)
                             .multilineTextAlignment(.center)
@@ -63,7 +64,7 @@ struct FigBottomBar: View {
             }
         }
         .padding(4)
-        .background(Color.figSurfaceMuted, in: RoundedRectangle(cornerRadius: 24))
+        .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 28))
     }
 
     private func accessibilityTabButton(_ area: FigArea) -> some View {
@@ -71,7 +72,7 @@ struct FigBottomBar: View {
             select(area)
         } label: {
             Label(area.title, systemImage: area.symbol)
-                .font(.footnote)
+                .font(.text(.footnote))
                 .bold(selectedArea == area)
                 .foregroundStyle(selectedArea == area ? Color.figTextPrimary : Color.figTextSoft)
                 .frame(maxWidth: .infinity, minHeight: 56, alignment: .leading)
@@ -90,10 +91,10 @@ struct FigBottomBar: View {
     private var addButton: some View {
         Button("Add Link", systemImage: "plus", action: onAdd)
             .labelStyle(.iconOnly)
-            .font(.title2.bold())
+            .font(.text(.title2, weight: .bold))
             .foregroundStyle(Color.figSurface)
             .frame(width: 56, height: 56)
-            .background(Color.figAccent, in: Circle())
+            .glassEffect(.regular.tint(.figAccent).interactive(), in: Circle())
             .buttonStyle(.plain)
             .accessibilityIdentifier("add-link")
     }

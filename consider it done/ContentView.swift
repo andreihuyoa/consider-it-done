@@ -61,6 +61,8 @@ struct ContentView: View {
     @State private var showNotifications = false
     @State private var showArchived = false
     @State private var isRecoveringFromDensityGesture = false
+    /// Measured height of the bottom bar; tab content doesn't inherit its inset.
+    @State private var bottomBarHeight: CGFloat = 0
     @State private var interactionResetTask: Task<Void, Never>?
     @GestureState private var isChangingDensity = false
 
@@ -87,7 +89,7 @@ struct ContentView: View {
                     } label: {
                         Label("Notifications", systemImage: "bell")
                             .labelStyle(.iconOnly)
-                            .font(.title3)
+                            .font(.text(.title3))
                             .foregroundStyle(Color.figTextPrimary)
                             .frame(width: 44, height: 44)
                             .background(Color.figSurface, in: Circle())
@@ -98,18 +100,21 @@ struct ContentView: View {
                     .padding(.top, 16)
                 }
                 .safeAreaInset(edge: .bottom, spacing: 0) {
+                    Group {
 #if os(iOS)
-                    FigBottomBar(
-                        selectedArea: $selectedArea,
-                        reduceMotion: reduceMotion,
-                        onAdd: { showAddLinkSheet = true }
-                    )
+                        BottomBar(
+                            selectedArea: $selectedArea,
+                            reduceMotion: reduceMotion,
+                            onAdd: { showAddLinkSheet = true }
+                        )
 #else
-                    Button("Add Link", systemImage: "plus") { showAddLinkSheet = true }
-                        .buttonStyle(.borderedProminent)
-                        .tint(.figAccent)
-                        .padding(16)
+                        Button("Add Link", systemImage: "plus") { showAddLinkSheet = true }
+                            .buttonStyle(.borderedProminent)
+                            .tint(.figAccent)
+                            .padding(16)
 #endif
+                    }
+                    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { bottomBarHeight = $0 }
                 }
                 .disabled(selectedSave != nil)
                 .allowsHitTesting(selectedSave == nil)
@@ -130,11 +135,17 @@ struct ContentView: View {
 #if os(macOS)
         .frame(minWidth: 760, minHeight: 620)
 #endif
+        .font(.text(.body))
+        .tracking(.textTracking)
         .sheet(isPresented: $showAddLinkSheet) {
             addLinkSheet
+                .font(.text(.body))
+                .tracking(.textTracking)
         }
         .sheet(isPresented: $showNotifications) {
             NotificationsView(saves: saves)
+                .font(.text(.body))
+                .tracking(.textTracking)
         }
     }
 
@@ -148,6 +159,7 @@ struct ContentView: View {
                     browsingSurface
                 }
                 .disabled(selectedArea != .theFig)
+                .hidesSystemTabBar()
                 .padding(.horizontal, 24)
                 .padding(.top, 16)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -159,6 +171,7 @@ struct ContentView: View {
                     CollectionsOverview(saves: collectionsSaves)
                         .frame(maxHeight: .infinity, alignment: .top)
                 }
+                .hidesSystemTabBar()
                 .padding(.horizontal, 24)
                 .padding(.top, 16)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -172,11 +185,10 @@ struct ContentView: View {
                     onSelect: openDetail
                 )
                 .disabled(selectedArea != .search)
+                .hidesSystemTabBar()
             }
         }
-#if os(iOS)
-        .toolbarVisibility(.hidden, for: .tabBar)
-#else
+#if os(macOS)
         .tabViewStyle(.automatic)
 #endif
         .animation(reduceMotion ? nil : .easeInOut(duration: 0.2), value: selectedArea)
@@ -185,12 +197,12 @@ struct ContentView: View {
     private func header(title: String, subtitle: String) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
-                .font(.largeTitle.bold())
+                .font(.heading(.largeTitle))
                 .padding(.trailing, 56)
                 .foregroundStyle(Color.figTextPrimary)
                 .accessibilityAddTraits(.isHeader)
             Text(subtitle)
-                .font(.callout)
+                .font(.text(.callout))
                 .foregroundStyle(Color.figTextSoft)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -198,12 +210,24 @@ struct ContentView: View {
 
     private var browsingSurface: some View {
         VStack(alignment: .leading, spacing: 16) {
-            DensityControl(density: $density)
-
             archivedFilterChip
 
             if theFigSaves.isEmpty {
                 EmptyFigState(selectedArea: .theFig)
+            } else if density == .list {
+                // The carousel fits the space between header and bottom bar; no scrolling.
+                DensityContainer(
+                    density: density,
+                    saves: theFigSaves,
+                    namespace: saveNamespace,
+                    onSelect: { save in
+                        guard !blocksSaveInteractions else { return }
+                        openDetail(save)
+                    }
+                )
+                .padding(.bottom, bottomBarHeight + 8)
+                .frame(maxHeight: .infinity)
+                .allowsHitTesting(!blocksSaveInteractions)
             } else {
                 ScrollView {
                     DensityContainer(
@@ -219,6 +243,7 @@ struct ContentView: View {
                     .allowsHitTesting(!blocksSaveInteractions)
                 }
                 .scrollDisabled(blocksSaveInteractions)
+                .contentMargins(.bottom, bottomBarHeight, for: .scrollContent)
             }
         }
         .contentShape(Rectangle())
@@ -231,6 +256,20 @@ struct ContentView: View {
                     endDensityGesture(with: value.magnification)
                 }
         )
+        // The visible density picker was removed; pinch is the on-screen control.
+        // These keep density reachable without a pinch (design.md → "Density levels").
+        .accessibilityAction(named: "Closer layout") { stepDensity(to: density.nextCloser) }
+        .accessibilityAction(named: "Wider layout") { stepDensity(to: density.nextFarther) }
+        .background {
+            Group {
+                Button("Closer layout") { stepDensity(to: density.nextCloser) }
+                    .keyboardShortcut("=", modifiers: .command)
+                Button("Wider layout") { stepDensity(to: density.nextFarther) }
+                    .keyboardShortcut("-", modifiers: .command)
+            }
+            .opacity(0)
+            .accessibilityHidden(true)
+        }
     }
 
     private var archivedFilterChip: some View {
@@ -238,7 +277,7 @@ struct ContentView: View {
             showArchived.toggle()
         } label: {
             Label("Archived", systemImage: showArchived ? "archivebox.fill" : "archivebox")
-                .font(.caption.weight(.semibold))
+                .font(.text(.caption, weight: .semibold))
                 .foregroundStyle(showArchived ? Color.figSurface : Color.figTextMuted)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 6)
@@ -254,7 +293,7 @@ struct ContentView: View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
                 Text("Add a link")
-                    .font(.title2.bold())
+                    .font(.heading(.title2))
                     .foregroundStyle(Color.figTextPrimary)
                 Spacer()
                 Button {
@@ -270,7 +309,7 @@ struct ContentView: View {
 
             TextField("https://", text: $pendingURL)
                 .textFieldStyle(.plain)
-                .font(.title3.weight(.medium))
+                .font(.text(.title3, weight: .medium))
                 .foregroundStyle(Color.figTextPrimary)
                 .padding(16)
                 .background(Color.figSurfaceMuted)
@@ -296,7 +335,7 @@ struct ContentView: View {
 
             if let saveError {
                 Text(saveError)
-                    .font(.callout)
+                    .font(.text(.callout))
                     .foregroundStyle(Color.figTextSoft)
             }
 
@@ -317,6 +356,10 @@ struct ContentView: View {
         } else {
             return
         }
+        stepDensity(to: nextDensity)
+    }
+
+    private func stepDensity(to nextDensity: BrowseDensity) {
         guard nextDensity != density else { return }
 
         withAnimation(reduceMotion ? nil : .spring(response: 0.32, dampingFraction: 0.86)) {
@@ -381,6 +424,18 @@ struct ContentView: View {
         if let value = NSPasteboard.general.string(forType: .string) {
             pendingURL = value
         }
+#endif
+    }
+}
+
+private extension View {
+    /// The custom BottomBar replaces the system tab bar on iOS.
+    @ViewBuilder
+    func hidesSystemTabBar() -> some View {
+#if os(iOS)
+        toolbarVisibility(.hidden, for: .tabBar)
+#else
+        self
 #endif
     }
 }

@@ -11,6 +11,7 @@ enum SaveSource: String, CaseIterable, Codable {
     case youtube
     case reddit
     case facebook
+    case twitter
     case other
 }
 
@@ -23,6 +24,8 @@ final class SavedItem {
     var itemDescription: String?
     var thumbnailURL: URL?
     var thumbnailData: Data?
+    /// User-chosen image; takes priority over the Open Graph `thumbnailData`.
+    @Attribute(.externalStorage) var customImageData: Data? = nil
     var savedAt: Date
     var archivedAt: Date?
     var reminderDate: Date?
@@ -30,6 +33,11 @@ final class SavedItem {
     var isPinned: Bool
     @Relationship(deleteRule: .nullify) var collections: [Collection] = []
     @Relationship(deleteRule: .nullify) var tags: [Tag] = []
+
+    /// The image to show: the user's custom image, else the Open Graph image.
+    var displayImageData: Data? {
+        customImageData ?? thumbnailData
+    }
 
     var source: SaveSource {
         get { SaveSource(rawValue: sourceRawValue) ?? .other }

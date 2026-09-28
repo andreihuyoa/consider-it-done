@@ -1063,3 +1063,126 @@ entry's Manual steps.
 
 **Next step:** Andrei tests the entry manually. Then mark it `passing`, or
 record the failures and fix them.
+
+### Session: 2026-09-28 (review round)
+
+**Feature worked on:** `ui-card-theme-redesign` (still `in_progress`).
+
+**Goal:** Apply Andrei's device-testing feedback.
+
+**Changes made:**
+
+- Typography: removed the `.figFont` modifier. Views use `.font(...)` with
+  new `Font.heading(_:)` (Vollkorn Medium Italic, copied from the local
+  `~/Library/Fonts`) and `Font.text(_:weight:)` (Figtree). Tracking of
+  −0.2 pt is applied once at the root views. Info.plist registers both fonts.
+- `FigBottomBar` became `BottomBar` (file and type). Its background strip was
+  removed; the destination group uses `glassEffect(.regular.interactive())`
+  and the add button uses orange-tinted glass, in a `GlassEffectContainer`.
+  The system tab bar is now hidden per tab (it showed through once the strip
+  was gone).
+- Cards: the domain line was removed and Open Link uses ↗.
+- `SaveDetailOverlay`: redesigned layout (full-bleed media with glass pill
+  and close, meta line, Vollkorn title, reminder panel, circular icon
+  actions, orange ↗ Open Link at bottom right). The system confirmation
+  dialog was replaced by an inline confirmation. The URL text was removed.
+  The card scrolls when taller than the screen. `SaveThumbnail` gains
+  `fixedHeight`.
+- `design.md`, `AGENTS.md`: typography, principle 5 (HIG = UX baseline, not
+  personality), Save detail, bottom bar, and "no incidental renames".
+
+**Verification run:** `./init.sh` passed. The macOS and iOS simulator builds
+both passed (BUILD SUCCEEDED).
+
+**Evidence:** Andrei tested images, the carousel, VoiceOver, and large text,
+and skipped macOS. Claude's Simulator screenshots confirm the new fonts, the
+glass bar, the detail card, and the inline delete.
+
+**Status:** `in_progress`.
+
+**Known risks / follow-ups:** The review-round UI still needs Andrei's
+check, especially the new detail card in dark mode and at large text sizes.
+The red for destructive actions is system red (no token). Other screens
+(Collections, Search, Notifications, add-link sheet) still use some stock
+controls. Restyling them would be a follow-up under the new principle 5.
+
+**Next step:** Andrei re-tests. Then mark `passing` and commit.
+
+### Session: 2026-09-28 (device feedback fixes)
+
+**Feature worked on:** `ui-card-theme-redesign` (`in_progress`).
+
+**Changes made:**
+
+- `LinkClassifier.decodeEntities`: passes `.characterEncoding` UTF-8, which
+  fixes the “donâ€™t” mojibake for new saves.
+- `SaveDetailOverlay`: the reminder uses label-hidden date and time pickers
+  (wrapping); the source pill moved bottom-left and reads “From …”; the meta
+  line includes the time.
+- `design.md` → “Save detail” updated.
+
+**Verification run:** `./init.sh` passed. A swift script confirmed the
+decoding before and after the fix. Simulator screenshots confirm the pill,
+the time, and the reminder pills.
+
+**Status:** `in_progress`.
+
+**Known risks / follow-ups:** Saves created before the fix keep their
+garbled text. Andrei can edit them, re-save them, or ask for a one-time
+repair (not built; it would need its own entry). The reminder row at
+accessibility text sizes should be re-checked on device.
+
+**Next step:** Andrei re-tests. Then mark `passing` and commit.
+
+### Session: 2026-09-28 (accent + edit flow)
+
+**Feature worked on:** `ui-card-theme-redesign` (`in_progress`).
+
+**Changes made:**
+
+- The `figAccent` and system `AccentColor` colorsets are now sage, `#56735D`
+  light and `#8FB097` dark. The token names are unchanged, so every orange
+  element became sage.
+- `SaveCards.swift`: new shared `SaveSourcePill`. The footer uses it, and the
+  mark and name helpers were removed.
+- `SaveDetailOverlay`: uses `SaveSourcePill`. Editing works on drafts
+  (`draftCustomImage` plus the existing title and description drafts) and
+  saves them only on Save; Cancel discards them. Edit mode hides tags, the
+  reminder, the action row, and close, and the scrim tap and drag are ignored
+  while editing. "Use Original Image" replaces "Remove Custom Image". A new
+  `PillButtonStyle` replaces `.bordered`.
+- `design.md` and `AGENTS.md` are updated for the sage accent, the pill, and
+  the edit flow.
+
+**Verification run:** `./init.sh` passed. The macOS and iOS simulator builds
+both passed. Simulator screenshots are described in the entry's evidence.
+
+**Status:** `in_progress`.
+
+**Known risks / follow-ups:** In the Simulator the first tap on the
+reminder switch after opening detail sometimes did not register. This may
+be a Simulator input quirk, and Andrei should watch for it on device.
+`figSuccess` and `figAccent` are now close sages; if a distinct success
+color is needed later, it needs a decision.
+
+**Next step:** Andrei re-tests. Then mark `passing` and commit.
+
+### Session: 2026-09-28 (layouts)
+
+**Feature worked on:** `ui-card-theme-redesign` (`in_progress`).
+
+**Changes made:** `SaveSourceMark` was removed, and every call site (tiles,
+source stacks, search list card) now uses `SaveSourcePill`. The tiles'
+`minHeight` was dropped. `SaveThumbnail` gained `fillsAvailableHeight`, which
+the hero card uses. `ContentView` renders the carousel without a
+`ScrollView`, measures the bottom bar with `onGeometryChange`, and reserves
+that height (as padding for the carousel and as `contentMargins` for the
+scroll layouts). `SaveCarousel` caps its height at 640 pt.
+
+**Verification run:** `./init.sh` passed. The macOS and iOS simulator builds
+both passed. Simulator checks of the carousel (two different image shapes)
+and the Organization layout passed.
+
+**Status:** `in_progress`.
+
+**Next step:** Andrei re-tests. Then mark `passing` and commit.

@@ -18,33 +18,137 @@ struct SaveGridCard: View {
     @Environment(\.isEnabled) private var isEnabled
     let save: SavedItem
     let namespace: Namespace.ID
+    let onSelect: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            SaveThumbnail(data: save.thumbnailData)
-                .accessibilityHidden(true)
-            SaveSourceMark(source: save.source)
+        SaveCard(save: save, style: .compact, onSelect: onSelect)
+            .matchedGeometryEffect(id: save.id, in: namespace, isSource: isEnabled)
+    }
+}
 
-            Text(save.title)
-                .font(.headline.bold())
-                .foregroundStyle(Color.figTextPrimary)
-                .lineLimit(save.source == .other ? 3 : 2)
+/// The save card from design.md → "Save card anatomy": media, title,
+/// description, tags, divider, and a source footer with an Open Link button.
+struct SaveCard: View {
+    enum Style {
+        case compact
+        case hero
+    }
 
-            if let description = save.itemDescription {
-                Text(description)
-                    .font(.subheadline)
-                    .foregroundStyle(Color.figTextSoft)
-                    .lineLimit(3)
+    let save: SavedItem
+    let style: Style
+    let onSelect: () -> Void
+
+    private var inset: CGFloat { style == .hero ? 20 : 16 }
+
+    var body: some View {
+        Button(action: onSelect) {
+            VStack(alignment: .leading, spacing: 0) {
+                // Hero media flexes so every carousel card has the same size,
+                // whatever the image's aspect ratio.
+                SaveThumbnail(data: save.displayImageData, cornerRadius: 0, fillsAvailableHeight: style == .hero)
+                    .accessibilityHidden(true)
+
+                VStack(alignment: .leading, spacing: style == .hero ? 12 : 8) {
+                    Text(save.title)
+                        .font(.heading(style == .hero ? .title2 : .headline))
+                        .foregroundStyle(Color.figTextPrimary)
+                        .lineLimit(style == .hero ? 3 : 2)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    if let description = save.itemDescription, !description.isEmpty {
+                        Text(description)
+                            .font(.text(style == .hero ? .body : .subheadline))
+                            .foregroundStyle(Color.figTextSoft)
+                            .lineLimit(2)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+
+                    SaveTagRow(tags: save.tags)
+
+                    Rectangle()
+                        .fill(Color.figBorder.opacity(0.25))
+                        .frame(height: 1)
+                        .padding(.top, 4)
+                        .accessibilityHidden(true)
+
+                    SaveSourceFooter(save: save, style: style)
+                }
+                .padding(inset)
+                .fixedSize(horizontal: false, vertical: true)
             }
-
-            SaveTagRow(tags: save.tags)
+            .frame(maxWidth: .infinity, maxHeight: style == .hero ? .infinity : nil, alignment: .top)
+            .background(Color.figSurface)
+            .contentShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.figSurface)
+        .buttonStyle(.plain)
+        .accessibilityLabel(accessibilityLabel)
+        .accessibilityHint("Opens saved link details")
+        .overlay(alignment: .bottomTrailing) {
+            SaveOpenLinkButton(url: save.sourceURL, diameter: style == .hero ? 40 : 36)
+                .padding(inset)
+        }
         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .shadow(color: .figShadow, radius: 8, x: 0, y: 3)
-        .matchedGeometryEffect(id: save.id, in: namespace, isSource: isEnabled)
+        .shadow(color: .figShadow, radius: style == .hero ? 12 : 8, x: 0, y: style == .hero ? 4 : 3)
+    }
+
+    private var accessibilityLabel: String {
+        [save.title, save.itemDescription, save.source.displayName]
+            .compactMap { $0 }
+            .filter { !$0.isEmpty }
+            .joined(separator: ", ")
+    }
+}
+
+/// The source pill. Reserves trailing room for the Open Link button that
+/// `SaveCard` overlays on top of it.
+struct SaveSourceFooter: View {
+    let save: SavedItem
+    let style: SaveCard.Style
+
+    var body: some View {
+        HStack(spacing: 8) {
+            SaveSourcePill(source: save.source)
+
+            Spacer(minLength: 0)
+
+            Color.clear
+                .frame(width: 44, height: 44)
+                .accessibilityHidden(true)
+        }
+    }
+}
+
+/// Where a save came from, as one accent capsule. Used on cards and in detail.
+struct SaveSourcePill: View {
+    let source: SaveSource
+
+    var body: some View {
+        Text(source.displayName)
+            .font(.text(.footnote, weight: .semibold))
+            .foregroundStyle(Color.figSurface)
+            .lineLimit(1)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(Color.figAccent, in: Capsule())
+    }
+}
+
+struct SaveOpenLinkButton: View {
+    let url: URL
+    let diameter: CGFloat
+
+    var body: some View {
+        Link(destination: url) {
+            Image(systemName: "arrow.up.right")
+                .font(.text(.callout, weight: .semibold))
+                .foregroundStyle(Color.figTextPrimary)
+                .frame(width: diameter, height: diameter)
+                .background(Color.figSurfaceMuted, in: Circle())
+                .frame(width: 44, height: 44)
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Open Link")
     }
 }
 
@@ -55,17 +159,17 @@ struct SaveListCard: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 16) {
-            SaveThumbnail(data: save.thumbnailData)
-            SaveSourceMark(source: save.source)
+            SaveThumbnail(data: save.displayImageData)
+            SaveSourcePill(source: save.source)
 
             VStack(alignment: .leading, spacing: 8) {
                 Text(save.title)
-                    .font(.headline.bold())
+                    .font(.heading(.headline))
                     .foregroundStyle(Color.figTextPrimary)
                     .lineLimit(2)
 
                 Text(save.sourceURL.absoluteString)
-                    .font(.callout)
+                    .font(.text(.callout))
                     .foregroundStyle(Color.figTextSoft)
                     .lineLimit(1)
 
@@ -105,20 +209,20 @@ struct SourceStackCard: View {
                     .offset(x: 4, y: 4)
 
                 VStack(alignment: .leading, spacing: 16) {
-                    if let thumbnailData = saves.first?.thumbnailData {
+                    if let thumbnailData = saves.first?.displayImageData {
                         SaveThumbnail(data: thumbnailData)
                             .frame(height: 72)
                     }
 
-                    SaveSourceMark(source: source)
+                    SaveSourcePill(source: source)
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text(source.displayName)
-                            .font(.headline.weight(.semibold))
+                            .font(.heading(.headline))
                             .foregroundStyle(Color.figTextPrimary)
 
                         Text("\(saves.count) saved")
-                            .font(.footnote)
+                            .font(.text(.footnote))
                             .foregroundStyle(Color.figTextSoft)
                     }
                 }
@@ -133,20 +237,6 @@ struct SourceStackCard: View {
     }
 }
 
-struct SaveSourceMark: View {
-    let source: SaveSource
-
-    var body: some View {
-        Text(source.shortName)
-            .font(.caption.weight(.semibold))
-            .foregroundStyle(Color.figTextPrimary)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(Color.figSurfaceMuted)
-            .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
-    }
-}
-
 struct SaveTagRow: View {
     let tags: [Tag]
 
@@ -155,7 +245,7 @@ struct SaveTagRow: View {
             HStack(spacing: 8) {
                 ForEach(tags.prefix(3)) { tag in
                     Text(tag.name)
-                        .font(.caption)
+                        .font(.text(.caption))
                         .foregroundStyle(Color.figTextMuted)
                 }
             }
@@ -174,8 +264,10 @@ extension SaveSource {
             "Reddit"
         case .facebook:
             "Facebook"
+        case .twitter:
+            "X"
         case .other:
-            "Other"
+            "Web"
         }
     }
 
@@ -189,6 +281,8 @@ extension SaveSource {
             "RD"
         case .facebook:
             "FB"
+        case .twitter:
+            "X"
         case .other:
             "WEB"
         }
@@ -197,6 +291,11 @@ extension SaveSource {
 
 struct SaveThumbnail: View {
     let data: Data?
+    var cornerRadius: CGFloat = 8
+    /// When set, the media fills this height instead of following the image's aspect ratio.
+    var fixedHeight: CGFloat? = nil
+    /// When true, the media takes whatever height its container leaves and crops to fill.
+    var fillsAvailableHeight = false
 
 #if os(iOS)
     private static let imageCache = NSCache<NSData, UIImage>()
@@ -205,24 +304,51 @@ struct SaveThumbnail: View {
 #endif
 
     var body: some View {
-        if let image = platformImage {
-            imageView(image)
-                .resizable()
-                .scaledToFill()
+        if fillsAvailableHeight {
+            Color.figSurfaceMuted
+                .frame(maxWidth: .infinity, minHeight: 120, maxHeight: .infinity)
+                .overlay {
+                    if let image = platformImage {
+                        imageView(image)
+                            .resizable()
+                            .scaledToFill()
+                    }
+                }
+                .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+        } else if let fixedHeight {
+            Color.figSurfaceMuted
                 .frame(maxWidth: .infinity)
+                .frame(height: fixedHeight)
+                .overlay {
+                    if let image = platformImage {
+                        imageView(image)
+                            .resizable()
+                            .scaledToFill()
+                    }
+                }
+                .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+        } else if let image = platformImage {
+            Color.clear
                 .aspectRatio(imageAspectRatio(for: image), contentMode: .fit)
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .frame(maxWidth: .infinity)
+                .overlay {
+                    imageView(image)
+                        .resizable()
+                        .scaledToFill()
+                }
+                .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
         } else {
             Color.figSurfaceMuted
                 .frame(maxWidth: .infinity)
                 .aspectRatio(1.5, contentMode: .fit)
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
         }
     }
 
     private func imageAspectRatio(for image: PlatformImage) -> CGFloat {
         guard image.size.height > 0 else { return 1.5 }
-        return image.size.width / image.size.height
+        // Clamp very tall or very wide images so a card's media stays predictable.
+        return min(max(image.size.width / image.size.height, 0.75), 2)
     }
 
 #if os(iOS)
