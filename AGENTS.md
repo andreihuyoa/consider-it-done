@@ -76,16 +76,31 @@ it pass — if a step seems wrong, flag it and ask.
 
 ## Design/architecture conventions (do not violate silently)
 
-- Color tokens: `#F3EDE2` bg, `#FFFAF2` surface, `#EE9B1A` orange accent,
-  `#5F7D67` / `#E4EFDA` green — reserved for semantic states only. No
-  gradients, no default SF Symbol soup.
+- Color tokens: light mode uses `#F3EDE2` bg, `#FFFAF2` surface, and a sage
+  green accent `#56735D` (`figAccent`; orange is retired as of 2026-09-28).
+  `#5F7D67` / `#E4EFDA` remain the success tokens. Light and dark mode are both supported, and every
+  token has a dark value. The full adaptive table is in `design.md` → “Color
+  system”. Views use token names only. No gradients, no default SF Symbol
+  soup.
+- Typography: Vollkorn Medium Italic for headings, Figtree for body text (both
+  bundled, OFL). Use `.font(.heading(...))` / `.font(.text(...))`; both scale
+  with Dynamic Type. See `design.md` → “Typography”.
+- Apple HIG is the UX baseline (behavior, accessibility, Dynamic Type), not the
+  app's visual personality. Avoid stock-looking system UI where design.md
+  specifies a custom treatment.
+- Don't rename existing, generally named functions, types, or variables as a
+  side effect of restyling.
 - `Collection` and `Tag` must be proper SwiftData `@Model` types with
   relationships — never raw arrays on `SavedItem`.
-- Thumbnails: Open Graph image parsing only. No oEmbed, no fallback
-  thumbnail generation/placeholder mechanism.
-- Grid: pinch-to-zoom, 3 discrete density levels (hierarchical/sortable →
-  masonry 2-col iOS / 3-col macOS → full-card list), via `MagnifyGesture`
-  snapping between states.
+- Thumbnails: automatic images come from Open Graph image parsing only. No
+  oEmbed, no generated or placeholder thumbnails. A user may attach their own
+  image to a save. It is stored separately and takes priority over the OG
+  image; that is user content, not a fallback mechanism.
+- Grid: pinch-to-zoom, 3 discrete density levels (organization → masonry
+  2-col iOS / 3-col macOS → carousel), via `MagnifyGesture` snapping between
+  states. There is no visible density picker. Non-pinch access is only
+  through accessibility actions and ⌘ +/− shortcuts (see `design.md` →
+  “Density levels”).
 - macOS scope is `MenuBarExtra`-only until Carl explicitly confirms a full
   `WindowGroup` app. Do not build a full window app speculatively.
 - On-device AI (Apple Foundation Models) is Phase 2. Do not pull it into

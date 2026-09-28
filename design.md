@@ -4,7 +4,8 @@
 
 **Platform priority:** iOS first; macOS remains a MenuBarExtra companion
 
-**Last updated:** 2026-09-04
+**Last updated:** 2026-09-28 (dark mode, Figtree, save card anatomy, user
+edits, density control removal — see “Confirmed decisions — 2026-09-28”)
 
 ## Purpose
 
@@ -26,14 +27,21 @@ predictable.
    available. Do not generate substitute artwork, decorative thumbnails, or
    unrelated 3D imagery.
 3. **Depth should be quiet.** Shape, tonal layers, and soft shadow create depth.
-   Avoid thick outlines, glossy effects, glass everywhere, and dramatic
-   perspective.
+   Avoid thick outlines, glossy effects, and dramatic perspective. Liquid
+   Glass is used only on floating controls: the bottom bar, the add button,
+   and controls that sit on top of imagery (see “Save detail”).
 4. **Motion explains, then gets out of the way.** Animate card selection,
    density changes, sheets, and direct press feedback. Routine scrolling,
    filtering, and repeated navigation should not perform for the user.
-5. **The app must remain recognizably native.** Use SwiftUI behaviors, Dynamic
-   Type, system sheets, semantic controls, and accessibility settings even when
-   the visual treatment is custom.
+5. **Native behavior, own personality.** Apple's Human Interface Guidelines are
+   the UX baseline: SwiftUI behaviors, Dynamic Type, semantic controls, hit
+   targets, and accessibility settings. They are not the visual personality.
+   Avoid stock-looking UI (default bordered buttons, system alerts and
+   confirmation dialogs, blue tint, plain form rows) where a composed,
+   editorial treatment fits: serif italic headings, full-bleed imagery,
+   circular icon actions, soft pills, and inline states. Visual references
+   for this direction: [Branding for Property management platform](https://dribbble.com/shots/27765686-Branding-for-Property-management-platform)
+   and the nutrition/stays branding boards Andrei shared on 2026-09-28.
 6. **The library should become quieter as it grows.** Strong hierarchy and
    adaptive density matter more than adding labels, icons, or controls.
 
@@ -86,56 +94,95 @@ The dominant visual rhythm is:
 
 ## Color system
 
-The existing repository palette is authoritative.
+The existing light palette is authoritative. The dark palette was drafted
+from the 2026-09-28 save card mockup (near-black canvas, charcoal card) and
+is **pending visual review on device**. Its values may be tuned, but the
+light/dark token structure may not.
 
-| Role                 | Token                  | Value            | Use                                        |
-| -------------------- | ---------------------- | ---------------- | ------------------------------------------ |
-| Canvas               | `figBackground`        | `#F3EDE2`        | App and sheet backgrounds                  |
-| Primary surface      | `figSurface`           | `#FFFAF2`        | Cards, active navigation, elevated panels  |
-| Recessed surface     | `figSurfaceMuted`      | `#ECE5D9`        | Controls, empty media, inactive navigation |
-| Soft surface         | `figSurfaceSoft`       | `#FBF7F0`        | Stacked card backing and subtle separation |
-| Primary text         | `figTextPrimary`       | `#2F332F`        | Titles and essential actions               |
-| Secondary text       | `figTextSoft`          | `#565B54`        | Descriptions and URLs                      |
-| Muted text           | `figTextMuted`         | `#747870`        | Counts, labels, and metadata               |
-| Border               | `figBorder`            | `#747870`        | Low-opacity control outlines only          |
-| Strong border        | `figBorderStrong`      | `#2F332F`        | Rare high-contrast separation              |
-| Primary action       | `figAccent`            | `#EE9B1A`        | Save action, FAB, focused action only      |
-| Semantic green       | `figSuccess`           | `#5F7D67`        | Success, confirmed, completed states       |
-| Semantic green field | `figSuccessBackground` | `#E4EFDA`        | Success field and selected semantic state  |
-| Shadow               | `figShadow`            | `#484030` at 18% | Elevated cards and focused panels          |
+Every token has a light and a dark value, and the system appearance picks
+between them. Views reference only the token names, never raw values or
+`colorScheme` checks.
+
+| Role                 | Token                  | Light            | Dark (draft)     | Use                                        |
+| -------------------- | ---------------------- | ---------------- | ---------------- | ------------------------------------------ |
+| Canvas               | `figBackground`        | `#F3EDE2`        | `#0A0A0A`        | App and sheet backgrounds                  |
+| Primary surface      | `figSurface`           | `#FFFAF2`        | `#1C1C1C`        | Cards, active navigation, elevated panels  |
+| Recessed surface     | `figSurfaceMuted`      | `#ECE5D9`        | `#2A2A2A`        | Controls, empty media, inactive navigation |
+| Soft surface         | `figSurfaceSoft`       | `#FBF7F0`        | `#232323`        | Stacked card backing and subtle separation |
+| Primary text         | `figTextPrimary`       | `#2F332F`        | `#F5F5F5`        | Titles and essential actions               |
+| Secondary text       | `figTextSoft`          | `#565B54`        | `#A3A3A3`        | Descriptions and domains                   |
+| Muted text           | `figTextMuted`         | `#747870`        | `#8A8A8A`        | Counts, labels, and metadata               |
+| Border               | `figBorder`            | `#747870`        | `#8A8A8A`        | Low-opacity outlines and card dividers     |
+| Strong border        | `figBorderStrong`      | `#2F332F`        | `#F5F5F5`        | Rare high-contrast separation              |
+| Accent (sage)        | `figAccent`            | `#56735D`        | `#8FB097`        | Primary actions, FAB, source pills, toggles |
+| Semantic green       | `figSuccess`           | `#5F7D67`        | `#8FB097`        | Success, confirmed, completed states       |
+| Semantic green field | `figSuccessBackground` | `#E4EFDA`        | `#1F2A22`        | Success field and selected semantic state  |
+| Shadow               | `figShadow`            | `#484030` at 18% | `#000000` at 50% | Elevated cards and focused panels          |
+
+In dark mode, depth comes mainly from the surface stepping up from the canvas
+(`#0A0A0A` → `#1C1C1C` → `#2A2A2A`), because shadows barely show on a
+near-black canvas. Content on an accent fill uses `figSurface`: cream in light
+mode, charcoal in dark mode.
 
 ### Color rules
 
-- Orange is an action accent, not a general decoration color.
-- Green is semantic. Do not use it randomly to make screens more colorful.
-- Cards default to the primary surface. The green field is reserved for a real
-  semantic state; a no-image hero card uses `figSurfaceMuted` instead.
+- **Sage green is the accent (since 2026-09-28).** Orange (`#EE9B1A`) is
+  retired. `figAccent` is a deeper sage (`#56735D`) than `figSuccess`
+  (`#5F7D67`) so that cream text on it passes 4.5:1 (5.04:1; the lighter
+  sage measures 4.38:1). The system `AccentColor` uses the same values.
+- The accent marks primary actions and identity labels (the source pill). It
+  is not a general decoration color; surfaces stay neutral.
+- Cards default to the primary surface; a no-image hero card uses
+  `figSurfaceMuted`, not a green field.
 - Information must never rely on color alone. Pair archive, reminder, selected,
   and success colors with a label, symbol, shape, or checkmark.
 - Do not add gradients. Variation comes from content, spacing, and layered
   surfaces.
 
-Dark mode is not defined yet. Do not auto-invert these values or invent a dark
-palette without a separate approved direction.
+- Support light and dark mode fully. Every screen, sheet, card, and state must
+  be checked in both appearances. Do not auto-invert values or hard-code a
+  single appearance.
+- Store adaptive tokens as asset catalog color sets (Any + Dark appearance)
+  and expose them through `FigDesignTokens.swift`, so existing token names
+  stay the same.
+- Increase Contrast must remain legible in both appearances.
 
 ## Typography
 
-Use the system font so The Fig inherits native rendering, Dynamic Type, and
-platform familiarity.
+Two bundled typefaces (both SIL Open Font License, license embedded in the
+font files):
 
-| Content                 | SwiftUI text style       | Treatment                                       |
-| ----------------------- | ------------------------ | ----------------------------------------------- |
-| Screen title            | `.largeTitle`            | Bold, compact copy, one line when possible      |
-| Section or detail title | `.title2` / `.title3`    | Bold, two lines maximum in cards                |
-| Card title              | `.headline`              | Bold; the strongest element below the image     |
-| Description             | `.subheadline` / `.body` | Regular, relaxed line spacing                   |
-| Controls                | `.callout`               | Bold only for the active or primary label       |
-| Metadata                | `.footnote`              | Regular or semibold; never lighter than legible |
+- **Vollkorn Medium Italic** for headings: screen titles, section titles,
+  sheet titles, and save titles on cards, tiles, lists, and detail.
+- **Figtree** for everything else: descriptions, labels, controls, metadata,
+  and icons.
+
+Both are applied with the normal `.font(...)` modifier through two tokens in
+`FigDesignTokens.swift`, and both scale with Dynamic Type through
+`relativeTo:`:
+
+- `.font(.heading(.title2))` gives Vollkorn Medium Italic.
+- `.font(.text(.callout, weight: .semibold))` gives Figtree.
+
+| Content                 | Token                                   | Treatment                                       |
+| ----------------------- | --------------------------------------- | ----------------------------------------------- |
+| Screen title            | `.heading(.largeTitle)`                 | One line when possible                          |
+| Detail title            | `.heading(.title)`                      | Wraps freely                                    |
+| Section or sheet title  | `.heading(.title2)` / `.heading(.title3)` |                                               |
+| Card title              | `.heading(.headline)`; hero `.heading(.title2)` | Two lines maximum (hero: three)         |
+| Description             | `.text(.subheadline)` / `.text(.body)`  | Regular, relaxed line spacing                   |
+| Controls                | `.text(.callout)`                       | Semibold only for the active or primary label   |
+| Metadata                | `.text(.footnote)`                      | Regular or medium; never lighter than legible   |
+
+Letter spacing is tightened once for the whole app with
+`.tracking(.textTracking)` (−0.2 pt) at the root views, never per view.
 
 Rules:
 
-- Prefer `bold()` to manually choosing a bold font weight in implementation.
-- Do not use fixed point sizes for normal interface text.
+- Do not use fixed point sizes for normal interface text. A custom font base
+  size is allowed only when it scales through `relativeTo:`.
+- Headings carry the personality; keep them short. Do not set body copy,
+  buttons, or labels in Vollkorn.
 - Avoid `.caption2`. Use `.caption` only when the content remains comfortably
   legible at all accessibility sizes.
 - Titles use sentence case. Avoid all caps.
@@ -175,19 +222,49 @@ glance and almost flat during use.
   downward offset. The shadow must not form a dark halo.
 - The media region occupies roughly 55–65% of a tall card when an image is
   available.
-- Media clips to the card's upper contour. The text region remains calm and
-  light.
-- The source mark sits inside the media field near the top trailing corner when
-  legible, otherwise directly above the title.
+- Media clips to the card's upper contour. The text region remains calm.
+- The source sits in the card footer (see “Save card anatomy”), not on the
+  media field.
+
+### Save card anatomy (confirmed 2026-09-28)
+
+From top to bottom:
+
+1. **Media.** The user's custom image if set, otherwise the Open Graph image,
+   otherwise the flat `figSurfaceMuted` field. Clipped to the upper contour.
+2. **Title.** Card title style, bold, at most two lines.
+3. **Description.** Secondary text, at most two lines. Hidden when empty.
+4. **Tags.** Up to three tag pills plus `+N`, using the existing card tag
+   rendering. Hidden when there are no tags.
+5. **Divider.** A hairline in `figBorder` at low opacity, inset to the
+   content margins.
+6. **Source footer.** The source pill, then a circular **Open Link** button
+   (↗, `arrow.up.right`) on the trailing edge. The link itself is not shown,
+   because Open Link covers it.
+
+Source footer rules:
+
+- **Source pill** (`SaveSourcePill`, shared by cards and detail): one sage
+  capsule (`figAccent` fill, `figSurface` text) with the platform name in
+  `.text(.footnote, weight: .semibold)`. Names: Instagram, X, YouTube, Reddit,
+  Facebook, Web. It shows one label only (no separate mark), and it looks the
+  same size everywhere.
+- The Open Link button has a visible diameter of about 40 pt, a 44 × 44 pt hit
+  area, `figSurfaceMuted` fill, and the accessibility label “Open Link”. It
+  opens the link directly. Tapping anywhere else on the card still opens the
+  save detail.
+- Title and description show the user's edited text when present (see “Save
+  detail”).
 
 ### Hero save card
 
 The supplied “Recent Figs” mockup establishes the preferred hero composition:
 
 1. a large tonal media field, using real imagery or `figSurfaceMuted`;
-2. a compact source mark near the top trailing edge;
-3. title, short description, and tags anchored near the bottom;
-4. a single soft card shadow against the warm canvas.
+2. title, short description, and tags below the media;
+3. the source footer from “Save card anatomy” (superseding the earlier
+   top-trailing source mark);
+4. a single soft card shadow against the canvas.
 
 The mockup's pale green field is a useful depth reference, but it is not the
 default empty-image color because green is reserved for semantic states in this
@@ -210,9 +287,13 @@ items.
 
 ### Thumbnail rules
 
-- Show the real Open Graph image only.
+- Image priority: **user-added image → Open Graph image → no-image field**.
+- Users may add or replace a save's image at any time, from the save detail.
+  The Open Graph image is kept separately. Removing the custom image brings
+  the Open Graph image back.
 - Preserve a useful focal area with `scaledToFill` and predictable clipping.
-- Never fabricate a fallback thumbnail, illustration, or 3D object.
+- Never fabricate a fallback thumbnail, illustration, or 3D object. A
+  user-chosen photo is real content, not a fallback.
 - The no-image state is a flat recessed field with the source mark and enough
   contrast to remain intentional.
 - Images are decorative to VoiceOver when the title already communicates the
@@ -222,25 +303,28 @@ items.
 
 Show only what helps recognition:
 
-1. Thumbnail or tonal media field
-2. Source mark
-3. Title
-4. Short description, when useful
-5. Up to three tags
+1. Image or tonal media field
+2. Title
+3. Short description, when useful
+4. Up to three tags
+5. Source footer: platform, domain, Open Link
 
 Tags use compact light-surface pills with text such as `#design`, rather than a
 row of uncontained words. If more than three tags exist, show `+N` instead of
 wrapping the card into an unpredictable height.
 
-URLs belong in list and detail contexts, not on the visual grid card.
+Full URLs belong in list and detail contexts. A grid card shows the domain
+only, in the source footer.
 
 ## Screen composition
 
 ### The Fig
 
 - The header has one strong title and one short contextual line.
-- Density, sort, grouping, and archive controls sit below the header as one quiet
-  control region; they should not compete with the first card.
+- Sort, grouping, and archive controls sit below the header as one quiet
+  control region; they should not compete with the first card. There is **no
+  visible density picker**. Pinch is the density control (see “Density
+  levels”).
 - The content area begins close enough to the controls to read as the result of
   those choices.
 - Scrolling content must clear both the bottom navigation and the add button.
@@ -260,8 +344,28 @@ The three density levels represent different jobs, not just three card sizes.
 | Grid         | Browse visually        | Two-column iOS masonry; image-forward cards                     |
 | Carousel     | Focus on one save      | Front card with upcoming saves stacked behind; swipe left/right |
 
+Carousel layout (2026-09-28): the carousel does not scroll. The card fills the
+space between the header controls and the bottom bar (capped at 640 pt), so
+every card has the same size and position. The hero media flexes and crops to
+fill (`SaveThumbnail(fillsAvailableHeight:)`), and the text region keeps its
+natural height. The bottom bar's measured height is reserved below it; scroll
+layouts reserve the same height with `contentMargins`.
+
+Organization tiles hug their content (no fixed minimum heights) and use the
+same full-name source pill as cards.
+
 Pinch transitions snap between these three states. Avoid continuous card scaling,
 which makes text and hit targets feel unstable.
+
+The visible density picker was removed on 2026-09-28, so pinch is the only
+on-screen control. For people who cannot pinch:
+
+- The saves area exposes two named accessibility actions, **Closer layout**
+  and **Wider layout**, for VoiceOver, Voice Control, and Switch Control.
+- On macOS and on iPad with a hardware keyboard, **⌘ +** and **⌘ −** step
+  through the densities.
+- A future onboarding flow will teach the pinch gesture (tracked as a
+  separate deferred feature). Until then, nothing on screen announces it.
 
 ### Collections
 
@@ -274,19 +378,52 @@ unless future research shows users cannot understand the metaphor.
 - Use a native medium sheet on iOS.
 - Focus the URL field when appropriate without forcing the keyboard after every
   return to the app.
-- Make **Save Link** the only orange-filled action.
+- Make **Save Link** the only accent-filled action.
 - Keep **Paste** secondary.
 - Validation appears next to the field and stays until corrected.
 - Successful save dismisses the sheet without moving the user to another tab.
 
 ### Save detail
 
+A focused card over a scrim, composed rather than a stack of system controls:
+
+1. **Media.** Full-bleed image across the top (240 pt; 96 pt flat field when
+   there is no image). The source pill (same component as on cards) sits
+   bottom left, so it never reads as a second close button. A glass close
+   button floats top right.
+2. **Meta line.** “Saved Sep 21 at 5:08 AM” (date and time) in muted Figtree.
+3. **Title** in `.heading(.title)`, then the **description** in Figtree body,
+   then tags. The URL is not shown; Open Link covers it.
+4. **Reminder row.** A soft `figSurfaceMuted` panel with a bell, “Remind me”,
+   and a toggle. When on, date and time pickers appear inside the panel as two
+   pills with no inline label; they wrap onto two lines when space is short.
+5. **Action row.** Quiet 44 pt circular icon buttons on the left: Edit
+   (pencil), Add to Collection (icon only;
+   a menu of collections), Archive/Restore, and Remove (red trash). On the
+   right, the one filled action: a 56 pt sage **Open Link** circle with ↗.
+   Every icon button has an accessibility label.
+
+Rules:
+
 - The selected card should visually expand into a focused surface when Reduce
   Motion is off.
-- Keep the thumbnail, source, title, and description together at the top.
-- Open Link is primary. Collection, reminder, archive/restore, and remove are
-  progressively quieter actions.
-- Remove remains destructive and requires confirmation.
+- The card hugs its content and scrolls only when taller than the screen.
+- **Edit mode** (pencil) shows only the editable fields: title, description,
+  and image actions, plus **Cancel** and **Save**. Tags, reminder, the action
+  row, Open Link, and the close button are hidden. Tapping the scrim or
+  dragging down does not dismiss while editing.
+- **Nothing is written until Save.** Title, description, and image are
+  drafts; the header image previews the draft. Cancel discards them. The
+  description is filled in automatically from Open Graph when a link is
+  saved. An empty title is not saved. Clearing the description leaves it
+  empty; it is not re-fetched.
+- **Image actions:** Add Image / Replace Image (system photo picker) and **Use
+  Original Image**, which drops the custom image and brings back the link's
+  Open Graph image. It reads “Remove Image” when the link had none.
+- **Remove is confirmed inline.** Tapping the trash replaces the action row
+  with “Remove this save?” plus Cancel and a red Remove, in place. There is no
+  system confirmation dialog, and there is only one Remove control on screen
+  at a time.
 - Opening detail records the item as viewed but never hides or archives it.
 
 ### Bottom navigation and add action
@@ -298,6 +435,10 @@ unless future research shows users cannot understand the metaphor.
 - The active destination uses a surface change plus text emphasis, not color
   alone.
 - The add button may be circular, but its accessibility label must be “Add Link.”
+- There is no background strip behind the bar. The destination group sits on
+  Liquid Glass (`glassEffect`, interactive), and the add button is sage-
+  tinted glass. Both share a `GlassEffectContainer`. The system tab bar is
+  hidden inside each tab.
 
 ## Motion and interaction
 
@@ -387,6 +528,9 @@ current approved scope.
 A screen or component is ready to ship only when:
 
 - [ ] The visual hierarchy remains clear with images disabled.
+- [ ] The screen is checked in both light and dark appearance.
+- [ ] Headings use `.heading(...)`, all other text uses `.text(...)`, and both
+      scale with Dynamic Type.
 - [ ] Every action has a 44 × 44 pt hit area and an accessible label.
 - [ ] Dynamic Type does not clip or overlap card content.
 - [ ] The no-thumbnail state looks intentional without generated artwork.
@@ -406,9 +550,11 @@ These choices are intentionally not resolved by this document:
    **Consider It Done**.
 2. Whether the default heading should remain **The Fig** or become contextual,
    such as **Recent Figs**.
-3. Whether dark mode belongs in the first release and, if so, what authored
-   palette should replace the current light-only values.
+3. ~~Whether dark mode belongs in the first release.~~ Resolved 2026-09-28:
+   yes. The draft dark palette is in “Color system”, pending device review.
 4. Whether haptic feedback should accompany save completion and density snaps.
+5. What the future onboarding flow contains beyond teaching pinch-to-change
+   layout.
 
 Until each choice is confirmed, preserve the current product behavior.
 
@@ -438,3 +584,65 @@ sections Recently saved and Upcoming reminders, without extra section buttons.
 Settings/model work follows the redesign in separate entries. Optional deletedAt
 and profile name/image storage are not part of this UI pass; UserDefaults profile
 storage remains a proposal requiring confirmation, and CloudKit sync is deferred.
+
+## Confirmed decisions — 2026-09-28
+
+Confirmed by Andrei in the 2026-09-28 session, from the annotated save card
+mockup. These override conflicting text elsewhere in this document.
+
+1. **Dark mode is in scope.** The light palette is unchanged. The dark palette
+   is drafted from the mockup and needs a device review before it is final.
+2. **Typography** (revised later on 2026-09-28): Vollkorn Medium Italic for
+   headings and Figtree for body text. The original note read: Figtree with
+   slightly tightened tracking, still scaled
+   through Dynamic Type. This replaces “use the system font”.
+3. **The save card follows “Save card anatomy”.** The source footer (platform
+   mark, platform name, domain, Open Link button) replaces the top-trailing
+   source mark. Tags stay on the card because earlier decisions preserved the
+   existing tag rendering. The mockup omits them; confirm or remove them during
+   the card entry.
+4. **Users can edit a save's title and description.** The description is
+   still auto-filled from Open Graph when the link is saved.
+5. **Users can add their own image at any time.** It is stored separately from
+   the Open Graph image, which is restored when the custom image is removed.
+6. **An X/Twitter source is added** (hosts `x.com`, `twitter.com`, `t.co`),
+   shown as “X”.
+7. **The visible density picker is removed.** Pinch remains, backed by named
+   accessibility actions and ⌘ +/− keyboard shortcuts.
+8. **Onboarding is deferred** to a separate feature. It will at least teach
+   pinch-to-change layout. Its content is an open decision.
+
+## Confirmed decisions — 2026-09-28 (review round)
+
+After Andrei's device testing:
+
+1. Headings use Vollkorn Medium Italic and body text uses Figtree, both through
+   the plain `.font(...)` modifier (`.heading(_:)`, `.text(_:weight:)`).
+2. The bottom bar file/type is `BottomBar`. It has no background strip; it
+   uses Liquid Glass for the destination group and a tinted-glass add button.
+3. Cards and detail no longer show the link text; Open Link (↗) covers it.
+4. Add to Collection is icon-only.
+5. The detail card is redesigned (see “Save detail”), with inline delete
+   confirmation replacing the system confirmation dialog.
+6. Apple HIG is the UX baseline, not the visual personality (principle 5).
+7. Avoid renaming existing, generally named functions and variables when
+   restyling.
+
+## Confirmed decisions — 2026-09-28 (accent and editing)
+
+1. Sage green replaces orange as the accent everywhere, from now on
+   (`figAccent` = `#56735D` / `#8FB097`; system `AccentColor` matches). Green is
+   no longer reserved for semantic states only.
+2. The source is shown as one sage pill (`SaveSourcePill`) with the same text
+   size on cards and in detail. It replaces the doubled mark and name.
+3. Edits to title, description, and image are drafts until Save. Edit mode
+   hides everything except the editable fields and Cancel/Save. Use Original
+   Image stays.
+
+## Confirmed decisions — 2026-09-28 (layouts)
+
+1. The Organization layout uses the full-name source pill, and its tiles have
+   no fixed minimum height (no empty space under titles). Emphasized tiles
+   still allow four title lines.
+2. The carousel fits the screen without scrolling, and every card keeps the
+   same frame regardless of image aspect ratio.
