@@ -4,8 +4,9 @@
 
 **Platform priority:** iOS first; macOS remains a MenuBarExtra companion
 
-**Last updated:** 2026-09-28 (dark mode, Figtree, save card anatomy, user
-edits, density control removal — see “Confirmed decisions — 2026-09-28”)
+**Last updated:** 2026-10-28 (Daybook identity direction confirmed, not yet
+built; see “Confirmed decisions — 2026-10-28”). Previous update 2026-09-28:
+dark mode, Figtree, save card anatomy, user edits, density control removal.
 
 ## Purpose
 
@@ -546,15 +547,20 @@ A screen or component is ready to ship only when:
 
 These choices are intentionally not resolved by this document:
 
-1. Whether the product name shown in the interface is **The Fig** or
-   **Consider It Done**.
-2. Whether the default heading should remain **The Fig** or become contextual,
-   such as **Recent Figs**.
+1. ~~Whether the product name shown in the interface is **The Fig** or
+   **Consider It Done**.~~ Resolved 2026-10-28: the Saves screen title is
+   “Consider it done” (applies with `ui-identity-daybook`).
+2. ~~Whether the default heading should remain **The Fig** or become
+   contextual.~~ Resolved 2026-10-28 by item 1; contextual titles are not used.
 3. ~~Whether dark mode belongs in the first release.~~ Resolved 2026-09-28:
    yes. The draft dark palette is in “Color system”, pending device review.
-4. Whether haptic feedback should accompany save completion and density snaps.
-5. What the future onboarding flow contains beyond teaching pinch-to-change
-   layout.
+4. ~~Whether haptic feedback should accompany save completion and density
+   snaps.~~ Resolved 2026-10-28: one success haptic when a save lands; none on
+   density snaps. A setting to turn it off is a later entry.
+5. What the future onboarding flow contains. Partly answered 2026-10-28: it
+   opens with Fig's philosophy and how the app works, then teaches the pinch
+   (weeks, days, in hand) and explains that Done is the former Archived.
+   Screens still need a spec.
 
 Until each choice is confirmed, preserve the current product behavior.
 
@@ -646,3 +652,79 @@ After Andrei's device testing:
    still allow four title lines.
 2. The carousel fits the screen without scrolling, and every card keeps the
    same frame regardless of image aspect ratio.
+
+## Confirmed decisions — 2026-10-28 (identity: Daybook)
+
+Confirmed by Andrei one at a time on 2026-10-28, from the identity study
+(a local-only file, `docs/identity/fig-identity-study.html`, which is not committed;
+published as a private artifact at https://claude.ai/artifact/UQLDdvgmH88cPfxnGMyjrT; it has the screens and component
+specs). **Not yet built.** These apply through the `ui-identity-daybook` entry
+and override conflicting text elsewhere in this document once that entry lands.
+The SwiftData schema does not change.
+
+Idea: Fig is a daybook. Every save is filed under the day it was saved, and
+whatever is kept together is torn out and piled up. Time organises Saves;
+piles of torn pages organise Collections.
+
+1. **Saves structure.** The middle density groups saves by the calendar day of
+   `savedAt` for the last 14 days, then by week, then by month, with the
+   two-column masonry inside each group. Day headers show a large date
+   numeral, “Today”/weekday and the count, and are pinned while their day
+   scrolls.
+2. **Far density.** Week piles by default (“21–27 · This week · 11 saves · 3
+   due”); source piles stay behind the Group control. Close density holds one
+   sheet with the rest of the day underneath.
+3. **Unopened saves** show “New” in words (from `viewedAt == nil`). Due (from
+   `reminderDate`) wins. No counts or badges.
+4. **Torn edge.** Save sheets tear along the bottom (6 pt amplitude); pile
+   sheets tear on two sides (9 pt). The tear is seeded by the save's ID, so it
+   is stable. Controls, fields and panels never tear. A pale fibre line
+   (`figTornFibre`, new token) sits under each tear.
+5. **Type.** Headings use upright Vollkorn (variable font, now bundled as
+   `Vollkorn-VariableFont_wght.ttf`): SemiBold for screen titles and pile
+   names, Medium for save titles. Vollkorn Bold Italic is used **only for
+   dates**: day numerals, week ranges, months and stamps. The Saves screen
+   title is “Consider it done”.
+6. **Card layout.** No divider and no source pill on cards or tiles. One foot
+   line: platform in semibold, then the time saved (“Instagram · 8:12”), then
+   the ↗ Open Link circle, then the state line. `SaveSourcePill` stays only on
+   top of images in detail.
+7. **No-image saves** are typeset pages: the title at Title 2 for up to seven
+   lines, two lines of description, foot pinned to the bottom. This replaces
+   the flat recessed field. Nothing is generated.
+8. **Depth.** A solid 2 pt edge (`figEdge`, new token) replaces the soft card
+   shadow; torn sheets have square paper corners.
+9. **Dark mode** uses warmer values under the same token names (canvas
+   `#11100E`, surface `#1E1C19`, muted `#2C2925`, text `#F3EDE2`), pending a
+   device check.
+10. **Canvas texture.** Dust and fibres (soft grain, sparse specks, short
+    fibres), as a tiled image asset per appearance, on the canvas only. It is
+    hidden with Increase Contrast or Reduce Transparency. This is material,
+    not a gradient.
+11. **Reminder** in detail is a tear-off calendar leaf (blank with + when off;
+    a sage band and the date when on) in place of the grey toggle panel.
+    Quick days (Tonight, Tomorrow, Saturday) are a separate entry.
+12. **Add Link** is “Today's page”: today's numeral at the top, a torn sheet
+    as the text field, Paste beside one sage “Save to today” action (its
+    accessibility label stays “Save Link”), and a sheet height that fits its
+    content instead of the medium detent.
+13. **Saving** is shown by the tear, not a spinner. The sheet tears along a
+    perforation while the page is read, the title and picture develop on the
+    paper, and the sheet drops into the top of today. Reduce Motion: “Saving…”
+    and a crossfade. Speed: the animation never adds waiting. The tear only
+    fills the metadata wait and is skipped under 300 ms; everything after the
+    page is read finishes within 300 ms; the metadata wait is capped at 4 s,
+    then the save is filed with the host as title; the + edge (0.8 s) never
+    blocks input; Cancel or swipe down works at any time.
+14. **Haptics:** one success haptic when a save lands.
+15. **Search empty states** use Fig's own type and layout instead of
+    `ContentUnavailableView`.
+16. **“Archived” is renamed “Done.”** Onboarding must explain the rename.
+17. **Small fixes** ship with the redesign: the subtitle pluralisation (“1
+    saved links.”), the stale URL error during saving, and save progress.
+
+Separate later entries (not part of `ui-identity-daybook`): creating
+collections (next, right after the redesign), reminder quick days,
+Notifications in the Daybook style, a share extension so Fig appears in other
+apps' share sheets, onboarding, the macOS menu bar view, widgets for upcoming
+reminders, and a setting to turn off the save haptic.

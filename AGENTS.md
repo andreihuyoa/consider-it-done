@@ -85,6 +85,12 @@ it pass — if a step seems wrong, flag it and ask.
 - Typography: Vollkorn Medium Italic for headings, Figtree for body text (both
   bundled, OFL). Use `.font(.heading(...))` / `.font(.text(...))`; both scale
   with Dynamic Type. See `design.md` → “Typography”.
+- Identity direction (confirmed 2026-10-28, not yet built): **Daybook**. Saves
+  grouped by day under Vollkorn Bold Italic date numerals; collections as
+  piles of torn pages; upright Vollkorn for every other heading; a dust-and-
+  fibre canvas texture. It is implemented only through the `ui-identity-daybook`
+  entry. Until that entry lands, the rules above still describe the shipped
+  app. Full list: `design.md` → “Confirmed decisions — 2026-10-28”.
 - Apple HIG is the UX baseline (behavior, accessibility, Dynamic Type), not the
   app's visual personality. Avoid stock-looking system UI where design.md
   specifies a custom treatment.
