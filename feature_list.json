@@ -125,7 +125,7 @@
         "Manual: verify each screen follows its confirmed motion specification, including matchedGeometryEffect for save detail and native add-sheet presentation"
       ],
       "evidence": "2026-09-07 final verification: ./init.sh exited 0 (BUILD SUCCEEDED; no unit-test target is configured, test action explicitly skipped). Required macOS xcodebuild command exited 0 (BUILD SUCCEEDED). Isolated QA screenshots inspected: cream background, rounded card surfaces, restrained shadows, labeled bottom controls, stacked neutral carousel, Search empty/results states, and detail actions wrapping vertically with full labels. At accessibility-extra-extra-extra-large, Density changed from compressed segments to a full-width menu whose accessibility tree exposed Organization, Masonry, and Carousel; selecting Carousel updated the control label. The simulator was restored to Large text afterward. Increase Contrast was enabled temporarily on the isolated simulator; the selected carousel segment, labels, card, bell, bottom destinations, and Add Link remained visibly distinct, then the setting was restored to disabled. Source checks confirmed color token file, SaveTagRow, model files, app scene, MenuBarSaveView, and blocked macOS feature unchanged. Full acceptance across full VoiceOver interaction, OG-image fixtures, compact portrait, and macOS MenuBarExtra remains pending.",
-      "notes": "Confirmed 2026-09-07: redesign proceeds now; Collection/Tag relationship work is deferred. Preserve SwiftData schema and public API. Exactly three bottom tabs: Saves/bookmark, Collections/square.stack, Search/magnifyingglass; Add Link remains a separate action on the right. Tab transitions use easeInOut(duration: 0.2), no animation with Reduce Motion. The TabView wrapper owns the shared namespace, selected save, and SaveDetailOverlay; cards retain existing matched-geometry IDs and tags. macOS scope remains MenuBarExtra; no changes to the blocked full-window feature. No migration for UI changes. Apply design.md tokens, but preserve existing card tag rendering as explicitly requested. Figma Main node1:11 measures402x874 with card372x495 and side inset15; use responsive layout rather than fixed frames. The closest-density stack is now explicitly approved in ui-redesign-saves-carousel, overriding the earlier restriction on single-save backing stacks. Green remains semantic-only. Keep existing detail/density springs and native sheet motion; no added decorative screen animation. Time Pill and contextual heading were not approved; retain existing content rather than inventing metadata. 2026-09-28: design.md now adds dark mode, Figtree, a new card anatomy, and removes the density picker. Those are tracked in ui-card-theme-redesign (priority 7) and are NOT part of this entry's scope. This entry's remaining work is manual acceptance of the light-mode token pass as implemented.",
+      "notes": "Confirmed 2026-09-07: redesign proceeds now; Collection/Tag relationship work is deferred. Preserve SwiftData schema and public API. Exactly three bottom tabs: Saves/bookmark, Collections/square.stack, Search/magnifyingglass; Add Link remains a separate action on the right. Tab transitions use easeInOut(duration: 0.2), no animation with Reduce Motion. The TabView wrapper owns the shared namespace, selected save, and SaveDetailOverlay; cards retain existing matched-geometry IDs and tags. macOS scope remains MenuBarExtra; no changes to the blocked full-window feature. No migration for UI changes. Apply design.md tokens, but preserve existing card tag rendering as explicitly requested. Figma Main node1:11 measures402x874 with card372x495 and side inset15; use responsive layout rather than fixed frames. The closest-density stack is now explicitly approved in ui-redesign-saves-carousel, overriding the earlier restriction on single-save backing stacks. Green remains semantic-only. Keep existing detail/density springs and native sheet motion; no added decorative screen animation. Time Pill and contextual heading were not approved; retain existing content rather than inventing metadata. 2026-09-28: design.md now adds dark mode, Figtree, a new card anatomy, and removes the density picker. Those are tracked in ui-card-theme-redesign (priority 7) and are NOT part of this entry's scope. This entry's remaining work is manual acceptance of the light-mode token pass as implemented. 2026-10-27: identity study (local-only docs/identity/fig-identity-study.html, not committed; artifact https://claude.ai/artifact/UQLDdvgmH88cPfxnGMyjrT) proposes the Daybook direction (Almanac time spine for Saves, torn-paper piles for Collections; Pile as fallback) as new scope; it needs Andrei's approvals and its own entry (suggested ui-identity-daybook) before implementation. This entry's status is unchanged. 2026-10-28: Andrei confirmed the Daybook direction; it is registered as ui-identity-daybook (priority 8), which supersedes this entry's remaining manual acceptance. Status left unchanged for Andrei to close or keep.",
       "status": "in_progress"
     },
     {
@@ -270,9 +270,127 @@
       "verification": [
         "TBD when specced"
       ],
-      "notes": "Requested by Andrei 2026-09-28 as a later feature, after the density picker was removed. Deferred: do not start until the content, trigger, and screens are specced and confirmed.",
+      "notes": "Requested by Andrei 2026-09-28 as a later feature, after the density picker was removed. Deferred: do not start until the content, trigger, and screens are specced and confirmed. 2026-10-28 (Andrei): onboarding should first explain Fig's philosophy and how the app works, then the gestures (pinch between weeks, days and in hand), and it must explain that “Done” is the former “Archived”. Still deferred until screens are specced.",
       "status": "blocked",
       "evidence": ""
+    },
+    {
+      "id": "ui-identity-daybook",
+      "priority": 8,
+      "area": "ui",
+      "title": "Daybook identity: day-grouped Saves, torn-paper sheets and piles, upright Vollkorn",
+      "user_visible_behavior": "Saves (titled “Consider it done”) groups saves by day under Vollkorn Bold Italic date numerals (last 14 days, then weeks, then months), with the two-column masonry inside each day; the far density shows week piles by default (source piles behind Group); the close density holds one sheet with the rest of the day under it. Save sheets have a seeded torn bottom edge, a solid 2 pt edge instead of a shadow, square paper corners, one foot line (platform · time · ↗) and a Due or New state line; saves without an image are typeset pages. Collections are piles of torn pages with name, count, due count and date span. Headings use upright Vollkorn; italic is only for dates. The canvas carries a dust-and-fibre texture (off with Increase Contrast or Reduce Transparency). Detail uses the calendar-leaf reminder control. Add Link is “Today’s page”: a torn-sheet field, Paste and “Save to today”, fitted sheet height, and the tear animation while saving, ending with one success haptic. Search empty states use Fig’s own type. “Archived” reads “Done”. Warm dark values. Fixes the “1 saved links.” pluralisation and the stale URL error during saving.",
+      "verification": [
+        "./init.sh",
+        "xcodebuild -scheme 'consider it done' -destination 'platform=macOS' -derivedDataPath /private/tmp/fig-identity-macos-derived-data CODE_SIGNING_ALLOWED=NO build",
+        "Manual: compare every Daybook screen against the identity study (artifact https://claude.ai/artifact/UQLDdvgmH88cPfxnGMyjrT; local-only copy at docs/identity/fig-identity-study.html) (Saves light/dark, far and close density, Collections, Search, Add Link states and save animation, detail with and without reminder, empty states); capture Simulator screenshots",
+        "Manual: Dynamic Type up to accessibility sizes (numerals capped at 1.3×, one column, no clipped titles), VoiceOver (day headers as headers, sheets and piles as single elements, tears and texture hidden), Reduce Motion (crossfades, no tear-in), Increase Contrast and Reduce Transparency (texture off, stronger edge), light and dark",
+        "Manual: unchanged behaviour for save, Open Link, edit, custom image, reminder set/remove, add to collection, archive (now Done)/restore, remove, Search matching, pinch and Closer/Wider accessibility actions, ⌘ +/−",
+        "Manual: singular subtitle for one save; no stale URL error under a valid link while saving; MenuBarExtra still usable on macOS",
+        "Manual: save timing on fast and throttled networks (Network Link Conditioner): under 300 ms skips the tear; after the page is read, the sheet lands within 300 ms; metadata wait capped at 4 s with the host-title fallback; input is never blocked by the + edge"
+      ],
+      "evidence": "",
+      "status": "not_started",
+      "notes": "Confirmed by Andrei 2026-10-28, decision by decision; see design.md → “Confirmed decisions — 2026-10-28” and the study's Daybook specifications. SwiftData schema unchanged: uses existing savedAt, viewedAt, reminderDate, archivedAt; no migration. New tokens figEdge and figTornFibre; new image asset figCanvasTexture; new TornEdge shape; new .date(_:) font token; .heading(_:) becomes upright Vollkorn. Register consider it done/Fonts/Vollkorn-VariableFont_wght.ttf in UIAppFonts. Vollkorn-Italic-VariableFont_wght copy.ttf is a byte-identical duplicate for Andrei to delete. Supersedes the remaining manual acceptance in ui-redesign-visual-system; Andrei to decide whether to close that entry. Do not rename existing types (SaveCard, SaveSourcePill, BottomBar etc.); restyle them. 2026-10-28: Andrei asked that saving stay fast. Timing rules are in design.md item 13. LinkClassifier currently sets no timeout (URLSession default 60 s); the 4 s cap is part of this entry."
+    },
+    {
+      "id": "collection-create",
+      "priority": 9,
+      "area": "collections",
+      "title": "Create collections from the app",
+      "user_visible_behavior": "A user can create a named collection and add a save to it, so the Collections tab and its piles can show content. Entry points and flow to be specced and confirmed before implementation (proposal: “New pile…” at the top of the Add to Collection menu in detail, and an action in the Collections empty state).",
+      "verification": [
+        "./init.sh",
+        "xcodebuild -scheme 'consider it done' -destination 'platform=macOS' -derivedDataPath /private/tmp/fig-identity-macos-derived-data CODE_SIGNING_ALLOWED=NO build",
+        "Manual: create a collection, add and remove saves, see it appear as a pile in Collections; empty name rejected; VoiceOver labels"
+      ],
+      "evidence": "",
+      "status": "not_started",
+      "notes": "Registered 2026-10-28 at Andrei's request, to follow ui-identity-daybook. No UI creates a Collection today. Uses the existing Collection model; check whether data-model-collection-tag-relations must land first. Flow, naming and rename/delete are open questions."
+    },
+    {
+      "id": "reminder-quick-days",
+      "priority": 10,
+      "area": "reminders",
+      "title": "Quick reminder days on the calendar leaf",
+      "user_visible_behavior": "Under the calendar-leaf reminder control in detail, quick choices (Tonight, Tomorrow, the coming Saturday, Pick a day) set a reminder in one tap.",
+      "verification": [
+        "./init.sh",
+        "Manual: each quick day sets the expected date and time and schedules the notification; Pick a day opens the existing pickers; VoiceOver reads the resulting date"
+      ],
+      "evidence": "",
+      "status": "not_started",
+      "notes": "Chosen by Andrei 2026-10-28 (decision 11). Times for each choice (e.g. Tonight 20:00, Tomorrow 9:00, Saturday 10:00) and the past-time rule for Tonight need confirmation."
+    },
+    {
+      "id": "share-extension-todays-page",
+      "priority": 41,
+      "area": "capture",
+      "title": "Share extension: save from any app’s share sheet as “Today’s page”",
+      "user_visible_behavior": "Fig (Consider it done) appears as a target in other apps' share sheets; sharing a link shows the “Today’s page” torn sheet with the tear animation and saves into today.",
+      "verification": [
+        "./init.sh",
+        "Manual: share a link from Safari, Instagram, YouTube and X; the save appears under today with its metadata; works offline with a retry"
+      ],
+      "evidence": "",
+      "status": "not_started",
+      "notes": "Andrei 2026-10-28: share flow should be source app → Share → Consider it done. The project has no extension target yet (only the app target), so this needs a new target and an App Group for the SwiftData store; both are architecture decisions to confirm. The share extension is the product's universal save layer, so its priority may deserve to rise."
+    },
+    {
+      "id": "notifications-daybook",
+      "priority": 42,
+      "area": "ui",
+      "title": "Notifications in the Daybook style",
+      "user_visible_behavior": "The Notifications sheet lists upcoming reminders under date numerals, each with the calendar leaf.",
+      "verification": [
+        "./init.sh",
+        "Manual: reminders appear under the right day; light/dark; VoiceOver"
+      ],
+      "evidence": "",
+      "status": "not_started",
+      "notes": "Later entry noted by Andrei 2026-10-28. Restyles the existing ui-redesign-notifications content; no new notification behaviour."
+    },
+    {
+      "id": "macos-menubar-daybook",
+      "priority": 43,
+      "area": "macos",
+      "title": "MenuBarExtra save view in the Daybook style",
+      "user_visible_behavior": "The macOS MenuBarExtra save view uses the Daybook sheets, type and texture.",
+      "verification": [
+        "xcodebuild -scheme 'consider it done' -destination 'platform=macOS' -derivedDataPath /private/tmp/fig-identity-macos-derived-data CODE_SIGNING_ALLOWED=NO build",
+        "Manual: MenuBarExtra save flow on macOS"
+      ],
+      "evidence": "",
+      "status": "not_started",
+      "notes": "Later entry noted by Andrei 2026-10-28. MenuBarExtra only; does not unblock macos-full-window-app."
+    },
+    {
+      "id": "widgets-upcoming-reminders",
+      "priority": 44,
+      "area": "widgets",
+      "title": "Home Screen widgets for upcoming reminders",
+      "user_visible_behavior": "A user can add a widget that shows upcoming reminders (Daybook style, date numerals and calendar leaf).",
+      "verification": [
+        "./init.sh",
+        "Manual: widget sizes, light/dark, tapping opens the save"
+      ],
+      "evidence": "",
+      "status": "not_started",
+      "notes": "To-do from Andrei 2026-10-28. Needs a WidgetKit extension target and shared data access (App Group); sizes and content to be specced."
+    },
+    {
+      "id": "settings-save-haptic-toggle",
+      "priority": 45,
+      "area": "settings",
+      "title": "Setting to turn off the save haptic",
+      "user_visible_behavior": "Settings has a switch to turn off the success haptic played when a save lands.",
+      "verification": [
+        "./init.sh",
+        "Manual: with the switch off, saving plays no haptic"
+      ],
+      "evidence": "",
+      "status": "blocked",
+      "notes": "To-do from Andrei 2026-10-28 (decision 14). Blocked on ui-redesign-profile-settings, which has no settings destination yet."
     }
   ]
 }

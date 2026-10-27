@@ -1209,3 +1209,216 @@ uncommitted local changes and were left out of the commits.
 `ui-redesign-visual-system` (5, `in_progress`, manual acceptance). Much of
 its scope is now covered by this entry, so Andrei should decide whether to
 close it or re-scope it.
+
+### Session: 2026-10-27 19:15
+
+**Feature worked on:** `ui-redesign-visual-system` (priority 5, `in_progress`),
+as context only. Andrei asked for a visual identity rethink. That is new scope,
+so this session produced a proposal and built nothing.
+
+**Goal:** Diagnose why Fig still reads as generic, research mymind, Cosmos,
+!Boring and the Paper at 10 retrospective, and develop three identity concepts
+with a recommendation, specifications and approvals.
+
+**Changes made:** Docs only. No Swift source, SwiftData schema, `design.md`,
+or `AGENTS.md` was changed.
+
+- `docs/identity/fig-identity-study.html` (local-only, not committed): the
+  study, published as a private artifact at https://claude.ai/artifact/UQLDdvgmH88cPfxnGMyjrT. It contains the
+  diagnosis, reference lessons, three concepts (Specimen, Almanac, Pile)
+  drawn as true-scale iPhone studies across Saves (light and dark),
+  Collections, Search, Add Link, detail with a long title and no image, and an
+  empty state, plus an evaluation, a recommendation (Pile), component, token
+  and motion specs, and an approvals list.
+- `docs/identity/before/` (local-only): screenshots of the current build from an isolated
+  simulator named "Fig Identity Study" (86BCE3CF-8C03-460C-9C78-BA47144113EF).
+  The test saves were two links (YouTube "Me at the zoo" and a mistyped
+  paulgraham.com URL). Andrei's other simulators were not touched.
+- `docs/identity/img/` (local-only): openly licensed Wikimedia Commons stand-ins for Open
+  Graph images, with `credits.json`. The page credits them.
+
+**Verification run:**
+
+- Command: `./init.sh` at session start
+- Result: pass (exit 0; no unit-test target, test action skipped)
+- Study rendering: checked in headless Chrome at 1400 px, every phone study
+  inspected. The published artifact could not be opened in the in-app browser
+  (claude.ai sign-in), so the live version was not seen.
+
+**Evidence:** Findings from the current build: there is no UI to create a
+`Collection`, so Collections is always empty. Search's empty state uses system
+SF, not Figtree. Save Link shows no progress during the metadata fetch. A stale
+"Enter a full URL" error can stay under a valid URL. The subtitle reads "1
+saved links." for a single save. A no-image save shows a flat beige field over
+a URL set in italic serif.
+
+**Status:** `ui-redesign-visual-system` unchanged (`in_progress`).
+
+**Known risks / follow-ups:**
+
+- Suggested new feature entry (not added, per the no-unspecced-features rule):
+  `ui-identity-pile`, which implements the Pile direction once Andrei answers
+  the approvals in the study. Several approvals override decisions confirmed
+  on 2026-09-28: card anatomy without the source pill or divider, the domain
+  back in a provenance line, a typeset no-image card, a 2 pt edge instead of
+  the shadow, an 8 pt radius, collection piles, and a warm dark tuning.
+- Suggested new feature entry: a way to create collections. Without it the
+  Collections tab cannot show anything.
+- Small bugs seen (each needs an entry or a fix decision): "1 saved links."
+  pluralisation, the stale add-link error, and no save progress (already
+  required by `design.md`).
+- `docs/` is untracked and not committed. The pre-existing changes to
+  `project.pbxproj`, `PreviewData.swift` and `xcuserdata` were left untouched.
+
+**Next step:** Andrei reviews the study and answers the approvals. Then
+register `ui-identity-pile` (and decide whether to close
+`ui-redesign-visual-system`) before any implementation.
+
+### Session: 2026-10-27 (identity study, revision)
+
+**Feature worked on:** none implemented. This revises the identity proposal
+for `ui-redesign-visual-system`.
+
+**Goal:** Andrei liked Almanac's time spine for Saves and Pile's stacks for
+Collections, but wanted torn paper edges instead of straight ones. Add a
+fourth concept that combines them.
+
+**Changes made:** `docs/identity/fig-identity-study.html` (local-only; artifact
+version 3 at https://claude.ai/artifact/UQLDdvgmH88cPfxnGMyjrT) adds the **Daybook** concept. Saves is grouped by day under large
+italic numerals, with weeks as piles at the far density. Collections are piles
+of torn pages with counts and date spans. Every save sheet has a seeded torn
+bottom edge, and piles have ragged layers. The concept is drawn across nine
+screens (Saves light and dark, far, close, Collections, Search, Add Link, long
+no-image detail, empty). Evaluation, recommendation, specifications and
+approvals are updated. Daybook is now recommended, with Pile as the fallback.
+
+**Verification run:** headless Chrome render of every Daybook screen at 0.62×
+and 0.8× zoom; fixed wrapping chips, a search row overlap and a too-regular
+tear profile. No Swift changes, so `./init.sh` was not rerun.
+
+**Status:** `ui-redesign-visual-system` unchanged (`in_progress`).
+
+**Known risks / follow-ups:** The new approvals are day grouping in Saves,
+week piles at the far density, a visible New state from `viewedAt`, and the
+torn edge with a new `figTornFibre` token. Pile's approvals still apply. The
+suggested entry is now `ui-identity-daybook`. Collection creation still needs
+its own entry.
+
+**Next step:** Andrei reviews Daybook and answers the approvals before any
+feature entry is registered or code is written.
+
+### Session: 2026-10-27 (identity study, Daybook revision 2)
+
+**Feature worked on:** none implemented (proposal for `ui-redesign-visual-system`).
+
+**Goal:** Apply Andrei's Daybook feedback. Use the newly added upright Vollkorn
+variable font so headings are no longer all italic, keep bold italic for the
+dates on Saves, and redesign Add Link, which still looked generic.
+
+**Changes made:** `docs/identity/fig-identity-study.html` (local-only; artifact
+version 4 at https://claude.ai/artifact/UQLDdvgmH88cPfxnGMyjrT).
+
+- Daybook type: upright Vollkorn (SemiBold for titles, Medium for save
+  titles); Vollkorn Bold Italic only for dates (day numerals, week ranges,
+  months, stamps). Proposes a `.date(_:)` font token.
+- Add Link redesigned as "Today's page". The text field is a blank torn sheet
+  under today's numeral. Paste sits next to the single sage "Save to today"
+  action. Drawn in four states: ready, saving (host and spinner), saved (the
+  same sheet fills with the picture and title), and not a link (inline reason
+  and fix).
+- Specs and approvals updated (type roles, Add Link sheet, button copy).
+
+**Verification run:** headless Chrome render of all Daybook screens; the four
+Add Link states were checked at 0.9× zoom. No Swift changes.
+
+**Known risks / follow-ups:**
+
+- Andrei added `consider it done/Fonts/Vollkorn-VariableFont_wght.ttf`
+  (weights 400–900, PostScript names VollkornRoman-*), which is not yet in
+  `UIAppFonts`. He also added `Vollkorn-Italic-VariableFont_wght copy.ttf`,
+  which is byte-identical to the existing italic; it was left in place for
+  him to delete.
+- Changing `.heading` to upright contradicts `design.md` → Typography until
+  it is approved.
+
+**Next step:** Andrei answers the walkthrough of remaining decisions; then
+register `ui-identity-daybook`.
+
+### Session: 2026-10-28
+
+**Feature worked on:** planning and registration for `ui-identity-daybook`
+(new). Nothing implemented.
+
+**Goal:** Apply Andrei's Daybook feedback, then walk through every open
+decision one at a time and record the answers.
+
+**Changes made:**
+
+- `docs/identity/fig-identity-study.html` (local-only; artifact version 6 at
+  https://claude.ai/artifact/UQLDdvgmH88cPfxnGMyjrT):
+  - Canvas texture options from the Pryzm gallery's grain, dither and ink-dot
+    pieces (gradients and glass excluded): plain, paper grain, dust and
+    fibres, riso flecks, dark dust, dark dither.
+  - Add Link sheets fitted to their content.
+  - A tear-off calendar leaf replacing the grey "Remind me" panel.
+  - A five-frame save storyboard: the tear is the progress indicator.
+  - "Consider it done" as the Saves title, and "Done" in place of "Archived".
+  - A new "Confirmed decisions, 28 Oct" section.
+- `design.md`: "Last updated" note; open decisions 1, 2 and 4 resolved and 5
+  partly answered; new section "Confirmed decisions — 2026-10-28 (identity:
+  Daybook)" with 17 items and the list of later entries.
+- `AGENTS.md`: one convention bullet naming Daybook as the confirmed, not yet
+  built direction.
+- `feature_list.json`: added `ui-identity-daybook` (8), `collection-create`
+  (9), `reminder-quick-days` (10), `share-extension-todays-page` (41),
+  `notifications-daybook` (42), `macos-menubar-daybook` (43),
+  `widgets-upcoming-reminders` (44) and `settings-save-haptic-toggle`
+  (45, blocked on profile/settings). Notes added to `onboarding-first-run`
+  (philosophy first, then gestures, explain Done = Archived) and to
+  `ui-redesign-visual-system` (superseded by the Daybook entry; status left
+  for Andrei).
+
+**Decisions confirmed by Andrei (AskUserQuestion, one at a time):** day
+grouping; week piles at the far density; "New" in words; torn edge as drawn;
+upright Vollkorn with bold italic dates and the "Consider it done" title; the
+one-line card foot, with the pill only in detail; typeset no-image pages;
+solid edge and square corners; warm dark; dust-and-fibre texture; calendar
+leaf plus quick days (separate entry); Add Link as drawn; the tear animation
+for saving; one save haptic (plus a later off switch); Search empty states in
+Fig's type; Archived renamed Done now; collection creation as the next entry;
+small bugs fixed inside the redesign; later entries for notifications, the
+share extension, onboarding, the menu bar, and widgets.
+
+**Verification run:** headless Chrome renders of all new studies;
+`jq empty feature_list.json` passed. No Swift changes, so `./init.sh` was not
+rerun this session (it passed on 2026-10-27).
+
+**Status:** `ui-identity-daybook` `not_started`; `ui-redesign-visual-system`
+unchanged (`in_progress`).
+
+**Known risks / follow-ups:**
+
+- The share extension and widgets need new targets and an App Group. These
+  are architecture decisions to confirm first.
+- The quick-day times and the collection-creation flow are open questions in
+  their entries.
+- `Vollkorn-VariableFont_wght.ttf` is not yet in `UIAppFonts`. The `… copy.ttf`
+  duplicate is still on disk for Andrei to delete.
+- None of this is committed. `docs/`, the harness edits and Andrei's earlier
+  local changes (`project.pbxproj`, `PreviewData.swift`, `xcuserdata`, the two
+  new font files) are all uncommitted.
+
+**Next step:** Andrei decides whether to close `ui-redesign-visual-system`.
+Then start `ui-identity-daybook` from a green `./init.sh`.
+
+**Addendum (2026-10-28):** at Andrei's request, the save animation was
+tightened so it never adds waiting: the tear is skipped under 300 ms; the
+sheet lands within 300 ms after the page is read; the metadata wait is capped
+at 4 s, with the host as the fallback title (`LinkClassifier` currently has no
+timeout); the + edge lasts 0.8 s. Recorded in `design.md` item 13 and in the
+`ui-identity-daybook` notes and verification. Study artifact version 7.
+
+**Note (2026-10-28):** at Andrei's request, the identity study is not committed.
+`docs/identity/` exists only on Andrei's machine and is excluded through
+`.git/info/exclude`; a fresh checkout won't have it. The study can be read at
+the private artifact https://claude.ai/artifact/UQLDdvgmH88cPfxnGMyjrT (sharing is controlled from the page's Share menu).
